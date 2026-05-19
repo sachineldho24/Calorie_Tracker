@@ -64,20 +64,17 @@ npx expo start -c --tunnel
   <img src="Screenshots/screenshot-10.jpg" width="250" alt="Step 3: Activity Level"/>
   <img src="Screenshots/screenshot-11.jpg" width="250" alt="Step 4: Fitness Goal"/>
 </div>
-
 ### Main Features
 <div align="center">
   <img src="Screenshots/screenshot-2.jpg" width="250" alt="Home Dashboard"/>
   <img src="Screenshots/screenshot-6.jpg" width="250" alt="Scan Meal"/>
   <img src="Screenshots/screenshot-7.jpg" width="250" alt="Review Results"/>
 </div>
-
 <div align="center">
   <img src="Screenshots/screenshot-3.jpg" width="250" alt="Food Diary"/>
   <img src="Screenshots/screenshot-4.jpg" width="250" alt="Progress Stats"/>
   <img src="Screenshots/screenshot-5.jpg" width="250" alt="Profile"/>
 </div>
-
 ### Settings
 <div align="center">
   <img src="Screenshots/screenshot-1.jpg" width="250" alt="Settings"/>
