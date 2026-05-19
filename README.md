@@ -58,26 +58,26 @@ npx expo start -c --tunnel
 ## Screenshots
 
 ### Onboarding Flow
-<div align="center" style="margin: 0; padding: 0;">
-  <img src="Screenshots/screenshot-8.jpg" width="250" alt="Step 1: Weight Goal" style="margin: 0; padding: 0;"/>
-  <img src="Screenshots/screenshot-9.jpg" width="250" alt="Step 2: Personal Info" style="margin: 0; padding: 0;"/>
-  <img src="Screenshots/screenshot-10.jpg" width="250" alt="Step 3: Activity Level" style="margin: 0; padding: 0;"/>
-  <img src="Screenshots/screenshot-11.jpg" width="250" alt="Step 4: Fitness Goal" style="margin: 0; padding: 0;"/>
+<div align="center" style="margin: 0; padding: 0; line-height: 0;">
+  <img src="Screenshots/screenshot-8.jpg" width="250" alt="Step 1: Weight Goal" style="margin: 0; padding: 0; display: block;"/>
+  <img src="Screenshots/screenshot-9.jpg" width="250" alt="Step 2: Personal Info" style="margin: 0; padding: 0; display: block;"/>
+  <img src="Screenshots/screenshot-10.jpg" width="250" alt="Step 3: Activity Level" style="margin: 0; padding: 0; display: block;"/>
+  <img src="Screenshots/screenshot-11.jpg" width="250" alt="Step 4: Fitness Goal" style="margin: 0; padding: 0; display: block;"/>
 </div>
 ### Main Features
-<div align="center" style="margin: 0; padding: 0;">
-  <img src="Screenshots/screenshot-2.jpg" width="250" alt="Home Dashboard" style="margin: 0; padding: 0;"/>
-  <img src="Screenshots/screenshot-6.jpg" width="250" alt="Scan Meal" style="margin: 0; padding: 0;"/>
-  <img src="Screenshots/screenshot-7.jpg" width="250" alt="Review Results" style="margin: 0; padding: 0;"/>
+<div align="center" style="margin: 0; padding: 0; line-height: 0;">
+  <img src="Screenshots/screenshot-2.jpg" width="250" alt="Home Dashboard" style="margin: 0; padding: 0; display: block;"/>
+  <img src="Screenshots/screenshot-6.jpg" width="250" alt="Scan Meal" style="margin: 0; padding: 0; display: block;"/>
+  <img src="Screenshots/screenshot-7.jpg" width="250" alt="Review Results" style="margin: 0; padding: 0; display: block;"/>
 </div>
-<div align="center" style="margin: 0; padding: 0;">
-  <img src="Screenshots/screenshot-3.jpg" width="250" alt="Food Diary" style="margin: 0; padding: 0;"/>
-  <img src="Screenshots/screenshot-4.jpg" width="250" alt="Progress Stats" style="margin: 0; padding: 0;"/>
-  <img src="Screenshots/screenshot-5.jpg" width="250" alt="Profile" style="margin: 0; padding: 0;"/>
+<div align="center" style="margin: 0; padding: 0; line-height: 0;">
+  <img src="Screenshots/screenshot-3.jpg" width="250" alt="Food Diary" style="margin: 0; padding: 0; display: block;"/>
+  <img src="Screenshots/screenshot-4.jpg" width="250" alt="Progress Stats" style="margin: 0; padding: 0; display: block;"/>
+  <img src="Screenshots/screenshot-5.jpg" width="250" alt="Profile" style="margin: 0; padding: 0; display: block;"/>
 </div>
 ### Settings
-<div align="center" style="margin: 0; padding: 0;">
-  <img src="Screenshots/screenshot-1.jpg" width="250" alt="Settings" style="margin: 0; padding: 0;"/>
+<div align="center" style="margin: 0; padding: 0; line-height: 0;">
+  <img src="Screenshots/screenshot-1.jpg" width="250" alt="Settings" style="margin: 0; padding: 0; display: block;"/>
 </div>
 
 ## Tech Stack
