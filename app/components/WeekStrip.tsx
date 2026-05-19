@@ -1,0 +1,100 @@
+/**
+ * WeekStrip — Horizontal day selector
+ * Shows 7 days with active state highlighted in Electric Lime
+ */
+import React from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import Colors from '../constants/Colors';
+import { FontFamily } from '../constants/Theme';
+import { getWeekDays, getDayInitial, formatDate } from '../lib/nutrition';
+
+interface WeekStripProps {
+  selectedDate: string;
+  onSelectDate: (date: string) => void;
+}
+
+export default function WeekStrip({ selectedDate, onSelectDate }: WeekStripProps) {
+  const days = getWeekDays();
+  const today = formatDate(new Date());
+
+  return (
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={styles.container}
+    >
+      {days.map((day) => {
+        const dateStr = formatDate(day);
+        const isActive = dateStr === selectedDate;
+        const isToday = dateStr === today;
+
+        return (
+          <TouchableOpacity
+            key={dateStr}
+            style={[styles.dayButton, isActive && styles.dayButtonActive]}
+            onPress={() => onSelectDate(dateStr)}
+            activeOpacity={0.7}
+          >
+            <Text style={[styles.dayInitial, isActive && styles.dayInitialActive]}>
+              {getDayInitial(day)}
+            </Text>
+            <Text style={[styles.dayDate, isActive && styles.dayDateActive]}>
+              {day.getDate()}
+            </Text>
+            {isToday && !isActive && <View style={styles.todayDot} />}
+          </TouchableOpacity>
+        );
+      })}
+    </ScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    gap: 6,
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+  },
+  dayButton: {
+    width: 44,
+    height: 64,
+    borderRadius: 12,
+    backgroundColor: Colors.surfaceCard,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  dayButtonActive: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
+    transform: [{ scaleY: 1.05 }],
+  },
+  dayInitial: {
+    fontFamily: FontFamily.bodyMedium,
+    fontSize: 11,
+    color: Colors.textMuted,
+    letterSpacing: 1,
+  },
+  dayInitialActive: {
+    color: Colors.onPrimary,
+  },
+  dayDate: {
+    fontFamily: FontFamily.heading,
+    fontSize: 16,
+    color: Colors.textPrimary,
+  },
+  dayDateActive: {
+    color: Colors.onPrimary,
+  },
+  todayDot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: Colors.primary,
+    position: 'absolute',
+    bottom: 6,
+  },
+});
