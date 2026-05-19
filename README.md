@@ -57,27 +57,30 @@ npx expo start -c --tunnel
 
 ## Screenshots
 
+### Onboarding Flow
 <div align="center">
-  <img src="Screenshots/screenshot-1.jpg" width="250" alt="Screenshot 1"/>
-  <img src="Screenshots/screenshot-2.jpg" width="250" alt="Screenshot 2"/>
-  <img src="Screenshots/screenshot-3.jpg" width="250" alt="Screenshot 3"/>
+  <img src="Screenshots/screenshot-8.jpg" width="250" alt="Step 1: Weight Goal"/>
+  <img src="Screenshots/screenshot-9.jpg" width="250" alt="Step 2: Personal Info"/>
+  <img src="Screenshots/screenshot-10.jpg" width="250" alt="Step 3: Activity Level"/>
+  <img src="Screenshots/screenshot-11.jpg" width="250" alt="Step 4: Fitness Goal"/>
+</div>
+
+### Main Features
+<div align="center">
+  <img src="Screenshots/screenshot-2.jpg" width="250" alt="Home Dashboard"/>
+  <img src="Screenshots/screenshot-6.jpg" width="250" alt="Scan Meal"/>
+  <img src="Screenshots/screenshot-7.jpg" width="250" alt="Review Results"/>
 </div>
 
 <div align="center">
-  <img src="Screenshots/screenshot-4.jpg" width="250" alt="Screenshot 4"/>
-  <img src="Screenshots/screenshot-5.jpg" width="250" alt="Screenshot 5"/>
-  <img src="Screenshots/screenshot-6.jpg" width="250" alt="Screenshot 6"/>
+  <img src="Screenshots/screenshot-3.jpg" width="250" alt="Food Diary"/>
+  <img src="Screenshots/screenshot-4.jpg" width="250" alt="Progress Stats"/>
+  <img src="Screenshots/screenshot-5.jpg" width="250" alt="Profile"/>
 </div>
 
+### Settings
 <div align="center">
-  <img src="Screenshots/screenshot-7.jpg" width="250" alt="Screenshot 7"/>
-  <img src="Screenshots/screenshot-8.jpg" width="250" alt="Screenshot 8"/>
-  <img src="Screenshots/screenshot-9.jpg" width="250" alt="Screenshot 9"/>
-</div>
-
-<div align="center">
-  <img src="Screenshots/screenshot-10.jpg" width="250" alt="Screenshot 10"/>
-  <img src="Screenshots/screenshot-11.jpg" width="250" alt="Screenshot 11"/>
+  <img src="Screenshots/screenshot-1.jpg" width="250" alt="Settings"/>
 </div>
 
 ## Tech Stack
