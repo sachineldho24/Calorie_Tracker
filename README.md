@@ -57,21 +57,17 @@ npx expo start -c --tunnel
 
 ## Screenshots
 
-<div align="center" style="margin: 0; padding: 0; line-height: 0; font-size: 0;">
-  <img src="Screenshots/screenshot-8.jpg" width="250" alt="Onboarding: Weight Goal" style="margin: 0; padding: 0; display: inline-block; vertical-align: top;"/>
-  <img src="Screenshots/screenshot-9.jpg" width="250" alt="Onboarding: Personal Info" style="margin: 0; padding: 0; display: inline-block; vertical-align: top;"/>
-  <img src="Screenshots/screenshot-10.jpg" width="250" alt="Onboarding: Activity Level" style="margin: 0; padding: 0; display: inline-block; vertical-align: top;"/>
-</div>
-<div align="center" style="margin: 0; padding: 0; line-height: 0; font-size: 0;">
-  <img src="Screenshots/screenshot-11.jpg" width="250" alt="Onboarding: Fitness Goal" style="margin: 0; padding: 0; display: inline-block; vertical-align: top;"/>
-  <img src="Screenshots/screenshot-2.jpg" width="250" alt="Home Dashboard" style="margin: 0; padding: 0; display: inline-block; vertical-align: top;"/>
-  <img src="Screenshots/screenshot-6.jpg" width="250" alt="Scan Meal" style="margin: 0; padding: 0; display: inline-block; vertical-align: top;"/>
-</div>
-<div align="center" style="margin: 0; padding: 0; line-height: 0; font-size: 0;">
-  <img src="Screenshots/screenshot-7.jpg" width="250" alt="Review Scan Results" style="margin: 0; padding: 0; display: inline-block; vertical-align: top;"/>
-  <img src="Screenshots/screenshot-3.jpg" width="250" alt="Food Diary" style="margin: 0; padding: 0; display: inline-block; vertical-align: top;"/>
-  <img src="Screenshots/screenshot-4.jpg" width="250" alt="Progress Statistics" style="margin: 0; padding: 0; display: inline-block; vertical-align: top;"/>
-</div>
+| Onboarding: Weight Goal | Onboarding: Personal Info | Onboarding: Activity Level |
+|:---:|:---:|:---:|
+| <img src="Screenshots/screenshot-8.jpg" width="250"> | <img src="Screenshots/screenshot-9.jpg" width="250"> | <img src="Screenshots/screenshot-10.jpg" width="250"> |
+
+| Onboarding: Fitness Goal | Home Dashboard | Scan Meal |
+|:---:|:---:|:---:|
+| <img src="Screenshots/screenshot-11.jpg" width="250"> | <img src="Screenshots/screenshot-2.jpg" width="250"> | <img src="Screenshots/screenshot-6.jpg" width="250"> |
+
+| Review Scan Results | Food Diary | Progress Statistics |
+|:---:|:---:|:---:|
+| <img src="Screenshots/screenshot-7.jpg" width="250"> | <img src="Screenshots/screenshot-3.jpg" width="250"> | <img src="Screenshots/screenshot-4.jpg" width="250"> |
 
 ## Tech Stack
 - React Native (Expo)
