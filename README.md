@@ -57,28 +57,17 @@ npx expo start -c --tunnel
 
 ## Screenshots
 
-<div align="center">
-  <img src="Screenshots/screenshot-1.jpg" width="250" alt="Screenshot 1"/>
-  <img src="Screenshots/screenshot-2.jpg" width="250" alt="Screenshot 2"/>
-  <img src="Screenshots/screenshot-3.jpg" width="250" alt="Screenshot 3"/>
-</div>
+| Onboarding: Weight Goal | Onboarding: Personal Info | Onboarding: Activity Level |
+|:---:|:---:|:---:|
+| <img src="Screenshots/screenshot-8.jpg" width="250"> | <img src="Screenshots/screenshot-9.jpg" width="250"> | <img src="Screenshots/screenshot-10.jpg" width="250"> |
 
-<div align="center">
-  <img src="Screenshots/screenshot-4.jpg" width="250" alt="Screenshot 4"/>
-  <img src="Screenshots/screenshot-5.jpg" width="250" alt="Screenshot 5"/>
-  <img src="Screenshots/screenshot-6.jpg" width="250" alt="Screenshot 6"/>
-</div>
+| Onboarding: Fitness Goal | Home Dashboard | Scan Meal |
+|:---:|:---:|:---:|
+| <img src="Screenshots/screenshot-11.jpg" width="250"> | <img src="Screenshots/screenshot-2.jpg" width="250"> | <img src="Screenshots/screenshot-6.jpg" width="250"> |
 
-<div align="center">
-  <img src="Screenshots/screenshot-7.jpg" width="250" alt="Screenshot 7"/>
-  <img src="Screenshots/screenshot-8.jpg" width="250" alt="Screenshot 8"/>
-  <img src="Screenshots/screenshot-9.jpg" width="250" alt="Screenshot 9"/>
-</div>
-
-<div align="center">
-  <img src="Screenshots/screenshot-10.jpg" width="250" alt="Screenshot 10"/>
-  <img src="Screenshots/screenshot-11.jpg" width="250" alt="Screenshot 11"/>
-</div>
+| Review Scan Results | Food Diary | Progress Statistics |
+|:---:|:---:|:---:|
+| <img src="Screenshots/screenshot-7.jpg" width="250"> | <img src="Screenshots/screenshot-3.jpg" width="250"> | <img src="Screenshots/screenshot-4.jpg" width="250"> |
 
 ## Tech Stack
 - React Native (Expo)
