@@ -55,6 +55,31 @@ npx expo start -c --tunnel
 ```
 *Troubleshooting:* If you get a `CommandError: TypeError: Cannot read properties of undefined (reading 'body')` or `ngrok tunnel took too long to connect`, it means the Ngrok tunneling service is currently experiencing outages or rate limits. In this case, use the LAN connection method above.
 
+## Screenshots
+
+<div align="center">
+  <img src="Screenshots/screenshot-1.jpg" width="250" alt="Screenshot 1"/>
+  <img src="Screenshots/screenshot-2.jpg" width="250" alt="Screenshot 2"/>
+  <img src="Screenshots/screenshot-3.jpg" width="250" alt="Screenshot 3"/>
+</div>
+
+<div align="center">
+  <img src="Screenshots/screenshot-4.jpg" width="250" alt="Screenshot 4"/>
+  <img src="Screenshots/screenshot-5.jpg" width="250" alt="Screenshot 5"/>
+  <img src="Screenshots/screenshot-6.jpg" width="250" alt="Screenshot 6"/>
+</div>
+
+<div align="center">
+  <img src="Screenshots/screenshot-7.jpg" width="250" alt="Screenshot 7"/>
+  <img src="Screenshots/screenshot-8.jpg" width="250" alt="Screenshot 8"/>
+  <img src="Screenshots/screenshot-9.jpg" width="250" alt="Screenshot 9"/>
+</div>
+
+<div align="center">
+  <img src="Screenshots/screenshot-10.jpg" width="250" alt="Screenshot 10"/>
+  <img src="Screenshots/screenshot-11.jpg" width="250" alt="Screenshot 11"/>
+</div>
+
 ## Tech Stack
 - React Native (Expo)
 - Google Gemini API (gemini-flash-latest)
