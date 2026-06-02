@@ -82,15 +82,22 @@ export default function ReviewEditScreen() {
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
         {/* Confidence */}
-        {!isManual && (
-          <View style={styles.confidenceCard}>
-            <Ionicons name={confidence === 'high' ? 'checkmark-circle' : 'alert-circle'} size={18}
-              color={confidence === 'high' ? Colors.primary : Colors.statusWarning} />
-            <Text style={styles.confidenceText}>
-              {confidence === 'high' ? 'High confidence' : `${confidence} confidence — review values`}
-            </Text>
-          </View>
-        )}
+        {!isManual && (() => {
+          const meta = {
+            high: { icon: 'checkmark-circle' as const, color: Colors.statusSuccess, label: 'High confidence', hint: 'AI is confident in these values.' },
+            medium: { icon: 'alert-circle' as const, color: Colors.statusWarning, label: 'Medium confidence', hint: 'Worth a quick check before saving.' },
+            low: { icon: 'warning' as const, color: Colors.statusError, label: 'Low confidence', hint: 'Please review and adjust the values.' },
+          }[confidence === 'high' || confidence === 'medium' ? confidence : 'low'];
+          return (
+            <View style={[styles.confidenceCard, { borderColor: meta.color }]}>
+              <Ionicons name={meta.icon} size={18} color={meta.color} />
+              <Text style={styles.confidenceText}>
+                <Text style={{ color: meta.color, fontFamily: FontFamily.heading }}>{meta.label}</Text>
+                <Text>{`  ·  ${meta.hint}`}</Text>
+              </Text>
+            </View>
+          );
+        })()}
 
         {/* Notes */}
         {notes ? (

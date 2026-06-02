@@ -19,6 +19,11 @@ const KEYS = {
   FOOD_ENTRIES: '@kcalai_food_entries',
   STREAK: '@kcalai_streak',
   WATER_INTAKE: '@kcalai_water_intake',
+  GEMINI_API_KEY: '@kcalai_gemini_api_key',
+  USE_LOCATION: '@kcalai_use_location',
+  MEAL_SUGGESTION: '@kcalai_meal_suggestion', // suffixed with _<date>_<slot>
+  PROVIDER_CONFIG: '@kcalai_provider_config',
+  ASSISTANT_MEMORY: '@kcalai_assistant_memory',
 };
 
 // === User Profile ===
@@ -147,9 +152,76 @@ export async function addWaterGlass(date: string): Promise<number> {
   return updated;
 }
 
+// === Gemini API Key (user-supplied, stored as a plain string) ===
+
+export async function getGeminiApiKey(): Promise<string | null> {
+  const data = await AsyncStorage.getItem(KEYS.GEMINI_API_KEY);
+  return data ? data : null;
+}
+
+export async function saveGeminiApiKey(key: string): Promise<void> {
+  await AsyncStorage.setItem(KEYS.GEMINI_API_KEY, key.trim());
+}
+
+export async function clearGeminiApiKey(): Promise<void> {
+  await AsyncStorage.removeItem(KEYS.GEMINI_API_KEY);
+}
+
+// === Location preference (opt-in for meal suggestions) ===
+
+export async function getUseLocation(): Promise<boolean> {
+  const data = await AsyncStorage.getItem(KEYS.USE_LOCATION);
+  return data ? JSON.parse(data) : false;
+}
+
+export async function setUseLocation(enabled: boolean): Promise<void> {
+  await AsyncStorage.setItem(KEYS.USE_LOCATION, JSON.stringify(enabled));
+}
+
+// === Meal suggestion cache (one per date + meal slot) ===
+
+function suggestionKey(date: string, slot: string): string {
+  return `${KEYS.MEAL_SUGGESTION}_${date}_${slot}`;
+}
+
+export async function getCachedSuggestion<T>(date: string, slot: string): Promise<T | null> {
+  const data = await AsyncStorage.getItem(suggestionKey(date, slot));
+  return data ? JSON.parse(data) : null;
+}
+
+export async function saveCachedSuggestion<T>(date: string, slot: string, suggestion: T): Promise<void> {
+  await AsyncStorage.setItem(suggestionKey(date, slot), JSON.stringify(suggestion));
+}
+
+// === AI Provider config (JSON blob) ===
+
+export async function getProviderConfig<T>(): Promise<T | null> {
+  const data = await AsyncStorage.getItem(KEYS.PROVIDER_CONFIG);
+  return data ? JSON.parse(data) : null;
+}
+
+export async function saveProviderConfig<T>(config: T): Promise<void> {
+  await AsyncStorage.setItem(KEYS.PROVIDER_CONFIG, JSON.stringify(config));
+}
+
+// === Assistant persistent memory (model-agnostic, plain JSON) ===
+
+export async function getAssistantMemory<T>(): Promise<T | null> {
+  const data = await AsyncStorage.getItem(KEYS.ASSISTANT_MEMORY);
+  return data ? JSON.parse(data) : null;
+}
+
+export async function saveAssistantMemory<T>(memory: T): Promise<void> {
+  await AsyncStorage.setItem(KEYS.ASSISTANT_MEMORY, JSON.stringify(memory));
+}
+
 // === Clear All Data ===
 
 export async function clearAllData(): Promise<void> {
-  const keys = Object.values(KEYS);
-  await AsyncStorage.multiRemove(keys);
+  const allKeys = await AsyncStorage.getAllKeys();
+  // Remove the fixed keys plus any date/slot-suffixed water and suggestion entries.
+  const toRemove = allKeys.filter(
+    k => Object.values(KEYS).some(base => k === base || k.startsWith(`${base}_`)),
+  );
+  await AsyncStorage.multiRemove(toRemove);
 }

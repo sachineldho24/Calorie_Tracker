@@ -1,29 +1,37 @@
-# Kcal.AI — Calorie Tracker & AI Scanner
+# Kcal.AI — Calorie Tracker & AI Scanner (App Module)
 
-Kcal.AI is a premium, dark-mode calorie tracking application built with Expo and React Native. It features a custom "Kinetic Noir" design system, an intuitive onboarding flow, daily macro tracking with animated rings, and a mock AI meal scanner to log foods effortlessly.
+Kcal.AI is a premium, dark-mode calorie tracking application built with Expo and React Native. It features a custom **"Kinetic Noir"** design system, an intuitive onboarding flow, daily macro tracking with animated rings, real Gemini Vision AI food scanner, weekly history charts, and streak/goal tracking.
+
+---
 
 ## 🚀 Features
 
-- **Kinetic Noir Design**: A sleek dark mode UI with `Electric Lime` accents and `Inter` typography.
-- **Onboarding Wizard**: Calculates your baseline TDEE and daily macro goals using the Harris-Benedict equation based on your personal metrics.
-- **Interactive Dashboard**: Visualizes your daily progress with animated SVG macro rings built with Reanimated 3.
-- **AI Meal Scanner (Mock)**: A custom camera overlay UI to snap your meals, accompanied by a realistic AI analysis mock returning data (including diverse cuisines) with varying confidence levels.
-- **Food Diary**: A chronologically ordered daily log, categorized by meal type.
-- **Local Persistence**: Completely offline-capable MVP using `@react-native-async-storage/async-storage` to save your profile, targets, and logs.
+*   **Kinetic Noir Design**: A sleek dark mode UI with `Electric Lime` accents, `Syne` and `Inter` typography.
+*   **Onboarding Wizard**: Calculates your baseline TDEE and daily macro goals using the Harris-Benedict equation based on your personal metrics.
+*   **Interactive Dashboard**: Visualizes your daily progress with animated SVG concentric macro rings built with Reanimated 3.
+*   **Gemini Vision AI Scanner**: A custom camera overlay UI to snap your meals, calling the real Gemini API (`gemini-flash-latest`) to return structured nutritional values with confidence ratings.
+*   **Food Diary**: A chronologically ordered daily log, categorized by meal type (Breakfast, Lunch, Dinner, Snacks).
+*   **Weekly History Charts**: Bar charts that map daily calorie intake compared to targets.
+*   **Streak & Goal Tracking**: Keep logs daily to maintain and display your running streak.
+*   **Local Persistence**: Completely offline-capable using `@react-native-async-storage/async-storage` to save profile metrics, target allocations, streaks, and meal logs.
+
+---
 
 ## 🛠️ Technology Stack
 
-- **Framework**: [Expo](https://expo.dev/) (React Native)
-- **Navigation**: [Expo Router](https://docs.expo.dev/router/introduction/) (File-based routing)
-- **Styling**: StyleSheet API with custom design tokens (`constants/Colors.ts` & `Theme.ts`)
-- **Typography**: `@expo-google-fonts/inter`
-- **Animations**: `react-native-reanimated` & `react-native-svg`
-- **Storage**: `@react-native-async-storage/async-storage`
+*   **Framework**: [Expo](https://expo.dev/) (React Native)
+*   **Navigation**: [Expo Router](https://docs.expo.dev/router/introduction/) (File-based routing)
+*   **Styling**: StyleSheet API with custom design tokens (`constants/Colors.ts` & `Theme.ts`)
+*   **Typography**: `@expo-google-fonts/inter` & `Syne`
+*   **Animations**: `react-native-reanimated` & `react-native-svg`
+*   **Storage**: `@react-native-async-storage/async-storage`
+
+---
 
 ## 📁 File Structure
 
 ```text
-c:\Projects\Calorie Tracker\app\
+app/
 ├── app/                      # Expo Router navigation (screens & layouts)
 │   ├── (onboarding)/         # Onboarding flow (Weight, Details, Activity, Goal)
 │   ├── (tabs)/               # Main bottom tab screens (Home, Diary, Scan, Progress, Profile)
@@ -44,7 +52,7 @@ c:\Projects\Calorie Tracker\app\
 ├── context/                  # Global state management
 │   └── AppContext.tsx        # AppProvider for state & persistence
 ├── lib/                      # Business logic & utilities
-│   ├── ai-scan.ts            # Mock AI vision service
+│   ├── ai-scan.ts            # Google Gemini AI vision service
 │   ├── nutrition.ts          # TDEE, BMR, and macro calculations
 │   └── storage.ts            # Local storage layer (AsyncStorage wrappers)
 ├── assets/                   # Static assets (images, fonts, splash)
@@ -52,14 +60,16 @@ c:\Projects\Calorie Tracker\app\
 └── app.json                  # Expo configuration
 ```
 
+---
+
 ## 💻 Getting Started
 
 ### 1. Prerequisites
 - **Node.js**: Ensure you have Node.js installed on your machine.
-- **Expo Go**: Install the **Expo Go** app on your Android (POCO X3) or iOS device from the respective app store.
+- **Expo Go**: Install the **Expo Go** app on your Android or iOS device from the respective app store.
 
 ### 2. Installation
-Clone the repository and install the dependencies:
+Install the dependencies:
 ```bash
 # Navigate to the project directory
 cd "c:\Projects\Calorie Tracker\app"
@@ -68,23 +78,30 @@ cd "c:\Projects\Calorie Tracker\app"
 npm install
 ```
 
-### 3. Running the Project
+### 3. Gemini API Key Setup
+Kcal.AI requires a Gemini API Key to enable the AI food scanning feature.
+1. Get a free API key from Google AI Studio: [https://aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey)
+2. Create a file named `.env` inside the `app` directory (i.e. `app/.env`).
+3. Add your key to the file:
+   ```env
+   EXPO_PUBLIC_GEMINI_API_KEY=your_api_key_here
+   ```
+
+### 4. Running the Project
 Start the Expo development server:
 ```bash
 npx expo start
 ```
 *If you encounter caching issues, run `npx expo start -c` to clear the cache.*
 
-### 4. Running on your Device (POCO X3)
-1. Ensure your POCO X3 is connected to the **same Wi-Fi network** as your computer.
+### 5. Running on your Device
+1. Ensure your physical device is connected to the **same Wi-Fi network** as your computer.
 2. Open the **Expo Go** app on your phone.
 3. If on the same Wi-Fi, the app should appear automatically under "Development servers".
 4. Alternatively, use the Expo Go app to **Scan the QR code** displayed in your terminal.
 5. Wait for the JavaScript bundle to build and load onto your device.
 
-> **Note on Expo SDK Versions:** This project is initialized with Expo SDK 54 dependencies. If your Expo Go app (e.g., SDK 51) fails to load the project, you have two options:
-> - Update your Expo Go app via the Google Play Store.
-> - Run `npx expo install --fix` in your terminal to attempt aligning the project dependencies with your globally installed Expo version.
+---
 
 ## 📝 Available Commands
 
@@ -98,16 +115,12 @@ Run these from the `c:\Projects\Calorie Tracker\app` directory:
 | `npx expo start --android` | Opens the app on a connected Android device or emulator. |
 | `npx expo install --fix` | Auto-fixes dependency version mismatches based on your Expo SDK. |
 
-**In-Terminal Shortcuts (while the server is running):**
-- Press `a` to launch on Android emulator.
-- Press `i` to launch on iOS simulator.
-- Press `r` to reload the app manually.
-- Press `m` to toggle the developer menu.
+---
 
 ## 🔧 Troubleshooting
 
 ### "Failed to download remote update" (Expo Go / Network Issues)
-If you are testing on a physical device and Expo Go cannot connect to your local server (or gets stuck at downloading the bundle), Windows may be blocking the connection or Expo may be binding to the wrong network interface.
+If Metro Metro cannot bind to the correct local network interface:
 
 **Step 1: Bind explicitly to your local IP address**
 Find your IP address using `ipconfig` (e.g., `192.168.1.2`), and start Expo by explicitly setting the host:
@@ -120,6 +133,3 @@ If Step 1 doesn't work, Windows Defender Firewall might be blocking incoming con
 ```powershell
 New-NetFirewallRule -DisplayName "Expo Metro Bundler (8081)" -Direction Inbound -LocalPort 8081 -Protocol TCP -Action Allow
 ```
-
-### Animation Glitches
-If the macro rings or scan frames don't animate smoothly, let me know so we can tweak the `react-native-reanimated` physics specific to your Android device.

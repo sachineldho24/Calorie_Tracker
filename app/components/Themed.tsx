@@ -16,18 +16,19 @@ type ThemeProps = {
 export type TextProps = ThemeProps & DefaultText['props'];
 export type ViewProps = ThemeProps & DefaultView['props'];
 
+// This app uses a single flat (dark-only) palette rather than light/dark maps,
+// so we map the two roles this component needs onto the Kinetic Noir tokens.
 export function useThemeColor(
   props: { light?: string; dark?: string },
-  colorName: keyof typeof Colors.light & keyof typeof Colors.dark
+  colorName: 'text' | 'background'
 ) {
-  const theme = useColorScheme() ?? 'light';
+  const theme = useColorScheme() ?? 'dark';
   const colorFromProps = props[theme];
 
   if (colorFromProps) {
     return colorFromProps;
-  } else {
-    return Colors[theme][colorName];
   }
+  return colorName === 'background' ? Colors.background : Colors.textPrimary;
 }
 
 export function Text(props: TextProps) {

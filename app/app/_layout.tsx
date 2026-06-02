@@ -63,9 +63,11 @@ export default function RootLayout() {
         />
         <Stack.Screen
           name="settings"
-          options={{
-            animation: 'slide_from_right',
-          }}
+          options={{ animation: 'slide_from_right' }}
+        />
+        <Stack.Screen
+          name="how-to-make"
+          options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
         />
       </Stack>
     </AppProvider>

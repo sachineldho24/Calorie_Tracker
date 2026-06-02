@@ -18,7 +18,8 @@
       "bundleIdentifier": "com.kcalai.app",
       "infoPlist": {
         "NSCameraUsageDescription": "Kcal.AI needs camera access to scan your meals and estimate nutrition.",
-        "NSPhotoLibraryUsageDescription": "Kcal.AI needs photo library access to analyze food photos."
+        "NSPhotoLibraryUsageDescription": "Kcal.AI needs photo library access to analyze food photos.",
+        "NSLocationWhenInUseUsageDescription": "Kcal.AI uses your approximate location to suggest meals from your regional cuisine."
       }
     },
     "android": {
@@ -28,7 +29,7 @@
       },
       "edgeToEdgeEnabled": true,
       "package": "com.kcalai.app",
-      "permissions": ["CAMERA"]
+      "permissions": ["CAMERA", "ACCESS_COARSE_LOCATION"]
     },
     "web": {
       "bundler": "metro",
@@ -47,6 +48,12 @@
         "expo-image-picker",
         {
           "photosPermission": "Allow Kcal.AI to access your photos to analyze food."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Kcal.AI uses your approximate location to suggest meals from your regional cuisine."
         }
       ]
     ],
