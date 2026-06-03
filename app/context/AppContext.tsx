@@ -1,6 +1,6 @@
 /**
  * Global app state context
- * Manages user profile, daily data, and food entries
+ * Manages user profile, daily data, food entries, weight history, and progress photos
  */
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import {
@@ -8,6 +8,8 @@ import {
   FoodEntry,
   DailySummary,
   DailyTargets,
+  WeightEntry,
+  ProgressPhoto,
   getDailyTargets,
   getToday,
 } from '../lib/nutrition';
@@ -25,6 +27,11 @@ import {
   updateStreak,
   getWaterIntake,
   addWaterGlass,
+  getWeightHistory,
+  addWeightEntry as storageAddWeightEntry,
+  getProgressPhotos,
+  addProgressPhoto as storageAddProgressPhoto,
+  removeProgressPhoto as storageRemoveProgressPhoto,
 } from '../lib/storage';
 
 interface AppState {
@@ -39,6 +46,10 @@ interface AppState {
   streak: number;
   waterGlasses: number;
 
+  // Weight & photos
+  weightHistory: WeightEntry[];
+  progressPhotos: ProgressPhoto[];
+
   // Loading
   isLoading: boolean;
 
@@ -51,6 +62,10 @@ interface AppState {
   editEntry: (id: string, updates: Partial<FoodEntry>) => Promise<void>;
   drinkWater: () => Promise<void>;
   refreshData: () => Promise<void>;
+  addWeightEntry: (kg: number) => Promise<void>;
+  addProgressPhoto: (uri: string) => Promise<void>;
+  removeProgressPhoto: (id: string) => Promise<void>;
+  resetApp: () => void;
 }
 
 const defaultTargets: DailyTargets = { calories: 2000, proteinG: 150, carbsG: 200, fatG: 67 };
@@ -71,6 +86,8 @@ const AppContext = createContext<AppState>({
   summary: emptySummary,
   streak: 0,
   waterGlasses: 0,
+  weightHistory: [],
+  progressPhotos: [],
   isLoading: true,
   setProfile: async () => {},
   completeOnboarding: async () => {},
@@ -80,6 +97,10 @@ const AppContext = createContext<AppState>({
   editEntry: async () => {},
   drinkWater: async () => {},
   refreshData: async () => {},
+  addWeightEntry: async () => {},
+  addProgressPhoto: async () => {},
+  removeProgressPhoto: async () => {},
+  resetApp: () => {},
 });
 
 export function AppProvider({ children }: { children: ReactNode }) {
@@ -90,6 +111,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [summary, setSummary] = useState<DailySummary>(emptySummary);
   const [streak, setStreak] = useState(0);
   const [waterGlasses, setWaterGlasses] = useState(0);
+  const [weightHistory, setWeightHistory] = useState<WeightEntry[]>([]);
+  const [progressPhotos, setProgressPhotos] = useState<ProgressPhoto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const refreshData = useCallback(async () => {
@@ -111,9 +134,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     (async () => {
       try {
-        const [savedProfile, onboarded] = await Promise.all([
+        const [savedProfile, onboarded, weights, photos] = await Promise.all([
           getUserProfile(),
           isOnboardingComplete(),
+          getWeightHistory(),
+          getProgressPhotos(),
         ]);
 
         if (savedProfile) {
@@ -121,6 +146,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
           setTargets(getDailyTargets(savedProfile));
         }
         setOnboardingDone(onboarded);
+        setWeightHistory(weights);
+        setProgressPhotos(photos);
       } catch (e) {
         console.error('Failed to load initial data:', e);
       } finally {
@@ -173,6 +200,40 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setWaterGlasses(updated);
   };
 
+  const addWeightEntry = async (kg: number) => {
+    const updated = await storageAddWeightEntry(kg);
+    setWeightHistory(updated);
+    // Also update the profile's current weight so TDEE stays accurate
+    if (profile) {
+      const updatedProfile = { ...profile, weightKg: kg };
+      await saveUserProfile(updatedProfile);
+      setProfileState(updatedProfile);
+      setTargets(getDailyTargets(updatedProfile));
+    }
+  };
+
+  const addProgressPhoto = async (uri: string) => {
+    const updated = await storageAddProgressPhoto(uri);
+    setProgressPhotos(updated);
+  };
+
+  const removeProgressPhoto = async (id: string) => {
+    const updated = await storageRemoveProgressPhoto(id);
+    setProgressPhotos(updated);
+  };
+
+  // Wipe all in-memory state so the index gate re-evaluates after clearAllData().
+  const resetApp = () => {
+    setProfileState(null);
+    setOnboardingDone(false);
+    setTargets(defaultTargets);
+    setSummary(emptySummary);
+    setStreak(0);
+    setWaterGlasses(0);
+    setWeightHistory([]);
+    setProgressPhotos([]);
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -183,6 +244,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         summary,
         streak,
         waterGlasses,
+        weightHistory,
+        progressPhotos,
         isLoading,
         setProfile,
         completeOnboarding,
@@ -192,6 +255,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
         editEntry,
         drinkWater,
         refreshData,
+        addWeightEntry,
+        addProgressPhoto,
+        removeProgressPhoto,
+        resetApp,
       }}
     >
       {children}

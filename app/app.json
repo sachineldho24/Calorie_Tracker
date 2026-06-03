@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Kcal.AI",
-    "slug": "kcal-ai",
+    "name": "CalSnap",
+    "slug": "calsnap",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "kcal-ai",
+    "scheme": "calsnap",
     "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "splash": {
@@ -17,9 +17,9 @@
       "supportsTablet": false,
       "bundleIdentifier": "com.kcalai.app",
       "infoPlist": {
-        "NSCameraUsageDescription": "Kcal.AI needs camera access to scan your meals and estimate nutrition.",
-        "NSPhotoLibraryUsageDescription": "Kcal.AI needs photo library access to analyze food photos.",
-        "NSLocationWhenInUseUsageDescription": "Kcal.AI uses your approximate location to suggest meals from your regional cuisine."
+        "NSCameraUsageDescription": "CalSnap needs camera access to scan your meals and estimate nutrition.",
+        "NSPhotoLibraryUsageDescription": "CalSnap needs photo library access to analyze food photos.",
+        "NSLocationWhenInUseUsageDescription": "CalSnap uses your approximate location to suggest meals from your regional cuisine."
       }
     },
     "android": {
@@ -41,19 +41,19 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow Kcal.AI to access your camera to scan meals."
+          "cameraPermission": "Allow CalSnap to access your camera to scan meals."
         }
       ],
       [
         "expo-image-picker",
         {
-          "photosPermission": "Allow Kcal.AI to access your photos to analyze food."
+          "photosPermission": "Allow CalSnap to access your photos to analyze food."
         }
       ],
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "Kcal.AI uses your approximate location to suggest meals from your regional cuisine."
+          "locationWhenInUsePermission": "CalSnap uses your approximate location to suggest meals from your regional cuisine."
         }
       ]
     ],

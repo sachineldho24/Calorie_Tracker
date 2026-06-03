@@ -20,13 +20,24 @@ const GOALS: { key: GoalType; title: string; desc: string; icon: keyof typeof Io
 export default function SetGoalScreen() {
   const params = useLocalSearchParams<{
     currentWeight: string; targetWeight: string;
-    height: string; age: string; sex: string; activityLevel: string;
+    height: string; age: string; sex: string; activityLevel: string; name?: string;
   }>();
   const { setProfile, completeOnboarding } = useApp();
-  const [selected, setSelected] = useState<GoalType>('lose');
+
+  // Auto-detect goal: losing < current, gaining > current, maintaining ≈ current
+  const initGoal = (): GoalType => {
+    const cur = Number(params.currentWeight) || 70;
+    const tgt = Number(params.targetWeight) || 65;
+    if (tgt < cur) return 'lose';
+    if (tgt > cur) return 'gain';
+    return 'maintain';
+  };
+
+  const [selected, setSelected] = useState<GoalType>(initGoal);
   const [saving, setSaving] = useState(false);
 
   const profile = {
+    name: params.name?.trim() || undefined,
     weightKg: Number(params.currentWeight) || 70,
     targetWeightKg: Number(params.targetWeight) || 65,
     heightCm: Number(params.height) || 170,

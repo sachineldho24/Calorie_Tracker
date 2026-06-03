@@ -11,7 +11,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Modal,
-  Pressable,
+  Pressable, TextInput,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -24,6 +24,8 @@ import {
   recordFeedback,
   answerQuestion,
   motivationForReaction,
+  setPantryItems,
+  removePantryItem,
   ONBOARDING_QUESTIONS,
   AssistantMemory,
 } from '../lib/assistant-memory';
@@ -35,10 +37,10 @@ interface AssistantCardProps {
   loading: boolean;
   onRefresh: () => void;
   onLog?: (s: MealSuggestion) => void;
-  /** A pending "getting to know you" question, or null if none this session. */
   pendingQuestion?: typeof ONBOARDING_QUESTIONS[number] | null;
   memory?: AssistantMemory | null;
   onQuestionAnswered?: (mem: AssistantMemory) => void;
+  onMemoryUpdated?: (mem: AssistantMemory) => void;
 }
 
 const SLOT_LABEL: Record<MealSlot, string> = {
@@ -59,11 +61,38 @@ const FEEDBACK_OPTIONS: { kind: FeedbackKind; icon: keyof typeof Ionicons.glyphM
 
 export default function AssistantCard({
   suggestion, slot, loading, onRefresh, onLog,
-  pendingQuestion, memory, onQuestionAnswered,
+  pendingQuestion, memory, onQuestionAnswered, onMemoryUpdated,
 }: AssistantCardProps) {
   const hasMacros = !!suggestion && !suggestion.isFallback && suggestion.estCalories > 0;
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [feedbackDone, setFeedbackDone] = useState<FeedbackKind | null>(null);
+
+  // Pantry state
+  const pantryItems = memory?.pantryItems ?? [];
+  const [pantryOpen, setPantryOpen] = useState(false);
+  const [pantryInput, setPantryInput] = useState('');
+
+  const handleSetPantry = async () => {
+    if (!pantryInput.trim()) return;
+    // Split on comma or newline
+    const items = pantryInput.split(/[,\n]+/).map(s => s.trim()).filter(Boolean);
+    const updated = await setPantryItems([...new Set([...pantryItems, ...items])]);
+    setPantryInput('');
+    onMemoryUpdated?.(updated);
+    onRefresh(); // re-suggest using pantry constraint
+  };
+
+  const handleClearPantry = async () => {
+    const updated = await setPantryItems([]);
+    onMemoryUpdated?.(updated);
+    onRefresh();
+  };
+
+  const handleRemoveIngredient = async (ingredient: string) => {
+    const updated = await removePantryItem(ingredient);
+    onMemoryUpdated?.(updated);
+    onRefresh(); // re-suggest without that ingredient
+  };
 
   // Question state
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
@@ -137,6 +166,77 @@ export default function AssistantCard({
         </TouchableOpacity>
       </View>
 
+      {/* Pantry panel */}
+      <View style={styles.pantryRow}>
+        <TouchableOpacity
+          style={styles.pantryToggle}
+          onPress={() => setPantryOpen(o => !o)}
+          activeOpacity={0.75}
+        >
+          <Ionicons name="basket-outline" size={14} color={Colors.macroCarb} />
+          <Text style={styles.pantryToggleText}>
+            {pantryItems.length > 0
+              ? `Fridge: ${pantryItems.slice(0, 2).join(', ')}${pantryItems.length > 2 ? ` +${pantryItems.length - 2}` : ''}`
+              : "What's in your fridge?"}
+          </Text>
+          <Ionicons
+            name={pantryOpen ? 'chevron-up' : 'chevron-down'}
+            size={12}
+            color={Colors.textMuted}
+          />
+        </TouchableOpacity>
+        {pantryItems.length > 0 && (
+          <TouchableOpacity onPress={handleClearPantry} hitSlop={8}>
+            <Text style={styles.pantryClear}>Clear</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+
+      {pantryOpen && (
+        <View style={styles.pantryPanel}>
+          {/* Existing pantry chips */}
+          {pantryItems.length > 0 && (
+            <View style={styles.pantryChips}>
+              {pantryItems.map(item => (
+                <TouchableOpacity
+                  key={item}
+                  style={styles.pantryChip}
+                  onPress={() => handleRemoveIngredient(item)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.pantryChipText}>{item}</Text>
+                  <Ionicons name="close" size={11} color={Colors.macroCarb} />
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+          {/* Input */}
+          <View style={styles.pantryInputRow}>
+            <TextInput
+              style={styles.pantryInput}
+              value={pantryInput}
+              onChangeText={setPantryInput}
+              placeholder="e.g. chicken, eggs, rice, spinach"
+              placeholderTextColor={Colors.textMuted}
+              autoCapitalize="none"
+              onSubmitEditing={handleSetPantry}
+              returnKeyType="done"
+            />
+            <TouchableOpacity
+              style={[styles.pantryAddBtn, !pantryInput.trim() && { opacity: 0.4 }]}
+              onPress={handleSetPantry}
+              disabled={!pantryInput.trim()}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.pantryAddText}>Add</Text>
+            </TouchableOpacity>
+          </View>
+          <Text style={styles.pantryHint}>
+            AI will suggest meals using only these ingredients.
+          </Text>
+        </View>
+      )}
+
       {/* Getting-to-know-you question (one per session) */}
       {pendingQuestion && !questionDone && (
         <View style={styles.questionBlock}>
@@ -197,6 +297,26 @@ export default function AssistantCard({
               <MacroChip label="P" value={suggestion.estProteinG} color="protein" />
               <MacroChip label="C" value={suggestion.estCarbsG} color="carb" />
               <MacroChip label="F" value={suggestion.estFatG} color="fat" />
+            </View>
+          )}
+
+          {/* Ingredient "don't have this" chips — Option B */}
+          {suggestion.items.length > 0 && !suggestion.isFallback && (
+            <View style={styles.ingredientSection}>
+              <Text style={styles.ingredientLabel}>INGREDIENTS — tap what you don't have</Text>
+              <View style={styles.ingredientChips}>
+                {suggestion.items.map((item, i) => (
+                  <TouchableOpacity
+                    key={i}
+                    style={styles.ingredientChip}
+                    onPress={() => handleRemoveIngredient(item)}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={styles.ingredientChipText}>{item}</Text>
+                    <Ionicons name="close-circle-outline" size={13} color={Colors.statusError} />
+                  </TouchableOpacity>
+                ))}
+              </View>
             </View>
           )}
 
@@ -319,6 +439,28 @@ const styles = StyleSheet.create({
   feedbackBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 4 },
   feedbackBtnText: { fontFamily: FontFamily.body, fontSize: 12, color: Colors.textMuted },
   feedbackDoneText: { fontFamily: FontFamily.body, fontSize: 12, color: Colors.textMuted, fontStyle: 'italic' },
+
+  // Pantry
+  pantryRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  pantryToggle: { flexDirection: 'row', alignItems: 'center', gap: 6, flex: 1 },
+  pantryToggleText: { fontFamily: FontFamily.bodyMedium, fontSize: 12, color: Colors.macroCarb, flex: 1 },
+  pantryClear: { fontFamily: FontFamily.body, fontSize: 11, color: Colors.textMuted, textDecorationLine: 'underline' },
+  pantryPanel: { backgroundColor: Colors.surfaceContainer, borderRadius: Radius.md, padding: 10, gap: 8 },
+  pantryChips: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  pantryChip: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: Colors.macroCarbBg, borderRadius: Radius.full, paddingHorizontal: 10, paddingVertical: 5 },
+  pantryChipText: { fontFamily: FontFamily.bodyMedium, fontSize: 12, color: Colors.macroCarb },
+  pantryInputRow: { flexDirection: 'row', gap: 8, alignItems: 'center' },
+  pantryInput: { flex: 1, fontFamily: FontFamily.body, fontSize: 13, color: Colors.textPrimary, backgroundColor: Colors.surfaceCard, borderRadius: Radius.sm, paddingHorizontal: 10, paddingVertical: 8 },
+  pantryAddBtn: { backgroundColor: Colors.macroCarb, borderRadius: Radius.sm, paddingHorizontal: 14, paddingVertical: 8 },
+  pantryAddText: { fontFamily: FontFamily.heading, fontSize: 13, color: Colors.background },
+  pantryHint: { fontFamily: FontFamily.body, fontSize: 11, color: Colors.textMuted },
+
+  // Ingredient don't-have chips
+  ingredientSection: { gap: 6 },
+  ingredientLabel: { fontFamily: FontFamily.bodyMedium, fontSize: 10, color: Colors.textMuted, letterSpacing: 1.2 },
+  ingredientChips: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  ingredientChip: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: Colors.surfaceCard, borderRadius: Radius.full, borderWidth: 1, borderColor: Colors.border, paddingHorizontal: 10, paddingVertical: 5 },
+  ingredientChipText: { fontFamily: FontFamily.body, fontSize: 12, color: Colors.textPrimary },
 
   // Modal
   overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.55)', justifyContent: 'flex-end' },

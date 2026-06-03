@@ -11,6 +11,7 @@ import { FontFamily } from '../../constants/Theme';
 
 export default function PersonalDetailsScreen() {
   const params = useLocalSearchParams<{ currentWeight: string; targetWeight: string }>();
+  const [name, setName] = useState('');
   const [height, setHeight] = useState('170');
   const [age, setAge] = useState('25');
   const [sex, setSex] = useState<'male' | 'female'>('male');
@@ -35,6 +36,21 @@ export default function PersonalDetailsScreen() {
         <Text style={styles.subtitle}>
           This helps us personalize your nutrition targets.
         </Text>
+
+        {/* Name */}
+        <View style={styles.inputGroup}>
+          <Text style={styles.inputLabel}>YOUR NAME</Text>
+          <View style={styles.inputRow}>
+            <TextInput
+              style={[styles.valueInput, { fontSize: 22 }]}
+              value={name}
+              onChangeText={setName}
+              placeholder="Enter your name"
+              placeholderTextColor={Colors.textMuted}
+              autoCapitalize="words"
+            />
+          </View>
+        </View>
 
         {/* Sex selection */}
         <View style={styles.inputGroup}>
@@ -100,6 +116,7 @@ export default function PersonalDetailsScreen() {
             pathname: '/(onboarding)/activity-level',
             params: {
               ...params,
+              name,
               height,
               age,
               sex,

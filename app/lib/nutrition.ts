@@ -7,7 +7,20 @@ export type Sex = 'male' | 'female';
 export type ActivityLevel = 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active';
 export type GoalType = 'lose' | 'maintain' | 'gain';
 
+export interface WeightEntry {
+  date: string;     // YYYY-MM-DD
+  weightKg: number;
+}
+
+export interface ProgressPhoto {
+  id: string;
+  uri: string;      // local file path — no base64
+  date: string;     // YYYY-MM-DD
+  timestamp: number;
+}
+
 export interface UserProfile {
+  name?: string;
   age: number;
   sex: Sex;
   heightCm: number;

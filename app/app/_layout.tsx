@@ -69,6 +69,10 @@ export default function RootLayout() {
           name="how-to-make"
           options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
         />
+        <Stack.Screen
+          name="voice-record"
+          options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
+        />
       </Stack>
     </AppProvider>
   );

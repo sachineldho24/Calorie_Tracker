@@ -8,6 +8,8 @@ import {
   FoodEntry,
   DailySummary,
   DailyTargets,
+  WeightEntry,
+  ProgressPhoto,
   getDailyTargets,
   getToday,
   generateId,
@@ -24,6 +26,8 @@ const KEYS = {
   MEAL_SUGGESTION: '@kcalai_meal_suggestion', // suffixed with _<date>_<slot>
   PROVIDER_CONFIG: '@kcalai_provider_config',
   ASSISTANT_MEMORY: '@kcalai_assistant_memory',
+  WEIGHT_HISTORY: '@kcalai_weight_history',
+  PROGRESS_PHOTOS: '@kcalai_progress_photos',
 };
 
 // === User Profile ===
@@ -213,6 +217,63 @@ export async function getAssistantMemory<T>(): Promise<T | null> {
 
 export async function saveAssistantMemory<T>(memory: T): Promise<void> {
   await AsyncStorage.setItem(KEYS.ASSISTANT_MEMORY, JSON.stringify(memory));
+}
+
+// === Recent unique entries (for re-log in scan screen) ===
+
+export async function getRecentUniqueEntries(limit = 8): Promise<FoodEntry[]> {
+  const all = await getAllEntries();
+  // Sort newest first, then dedupe by name (keep the most recent per name)
+  const sorted = [...all].sort((a, b) => b.timestamp - a.timestamp);
+  const seen = new Set<string>();
+  const unique: FoodEntry[] = [];
+  for (const e of sorted) {
+    const key = e.name.toLowerCase().trim();
+    if (!seen.has(key)) { seen.add(key); unique.push(e); }
+    if (unique.length >= limit) break;
+  }
+  return unique;
+}
+
+// === Weight history ===
+
+export async function getWeightHistory(): Promise<WeightEntry[]> {
+  const data = await AsyncStorage.getItem(KEYS.WEIGHT_HISTORY);
+  return data ? JSON.parse(data) : [];
+}
+
+export async function addWeightEntry(weightKg: number, date?: string): Promise<WeightEntry[]> {
+  const history = await getWeightHistory();
+  const entry: WeightEntry = { date: date ?? getToday(), weightKg };
+  // Replace any existing entry for the same date, otherwise append
+  const filtered = history.filter(e => e.date !== entry.date);
+  const updated = [...filtered, entry]
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .slice(-90); // keep last 90 entries
+  await AsyncStorage.setItem(KEYS.WEIGHT_HISTORY, JSON.stringify(updated));
+  return updated;
+}
+
+// === Progress photos ===
+
+export async function getProgressPhotos(): Promise<ProgressPhoto[]> {
+  const data = await AsyncStorage.getItem(KEYS.PROGRESS_PHOTOS);
+  return data ? JSON.parse(data) : [];
+}
+
+export async function addProgressPhoto(uri: string): Promise<ProgressPhoto[]> {
+  const photos = await getProgressPhotos();
+  const photo: ProgressPhoto = { id: generateId(), uri, date: getToday(), timestamp: Date.now() };
+  const updated = [photo, ...photos].slice(0, 30); // newest first, cap at 30
+  await AsyncStorage.setItem(KEYS.PROGRESS_PHOTOS, JSON.stringify(updated));
+  return updated;
+}
+
+export async function removeProgressPhoto(id: string): Promise<ProgressPhoto[]> {
+  const photos = await getProgressPhotos();
+  const updated = photos.filter(p => p.id !== id);
+  await AsyncStorage.setItem(KEYS.PROGRESS_PHOTOS, JSON.stringify(updated));
+  return updated;
 }
 
 // === Clear All Data ===

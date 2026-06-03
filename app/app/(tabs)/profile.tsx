@@ -1,13 +1,13 @@
 /**
  * User Profile
  */
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import Colors from '../../constants/Colors';
-import { FontFamily } from '../../constants/Theme';
+import { FontFamily, Radius } from '../../constants/Theme';
 import { useApp } from '../../context/AppContext';
 
 const ACTIVITY_LABELS: Record<string, string> = {
@@ -16,7 +16,25 @@ const ACTIVITY_LABELS: Record<string, string> = {
 };
 
 export default function ProfileScreen() {
-  const { profile, targets } = useApp();
+  const { profile, targets, addWeightEntry, weightHistory } = useApp();
+  const [weightInput, setWeightInput] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  const latestWeight = weightHistory.length > 0
+    ? weightHistory[weightHistory.length - 1]
+    : null;
+
+  const handleSaveWeight = async () => {
+    const kg = parseFloat(weightInput);
+    if (isNaN(kg) || kg < 20 || kg > 500) {
+      Alert.alert('Invalid weight', 'Enter a weight between 20 and 500 kg.');
+      return;
+    }
+    setSaving(true);
+    await addWeightEntry(kg);
+    setWeightInput('');
+    setSaving(false);
+  };
 
   const items = [
     { icon: 'body-outline', label: 'Weight', value: `${profile?.weightKg || '--'} kg` },
@@ -36,7 +54,7 @@ export default function ProfileScreen() {
         <View style={styles.avatar}>
           <Ionicons name="person" size={40} color={Colors.primary} />
         </View>
-        <Text style={styles.name}>Kcal.AI User</Text>
+        <Text style={styles.name}>{profile?.name || 'CalSnap User'}</Text>
         <Text style={styles.goal}>
           Goal: {profile?.goalType === 'lose' ? 'Lose Weight' : profile?.goalType === 'gain' ? 'Build Muscle' : 'Maintain'}
         </Text>
@@ -61,6 +79,39 @@ export default function ProfileScreen() {
               <Text style={[styles.targetValue, { color: Colors.macroFat }]}>{targets.fatG}g</Text>
               <Text style={styles.targetLabel}>Fat</Text>
             </View>
+          </View>
+        </View>
+
+        {/* Weight logging card */}
+        <View style={styles.weightCard}>
+          <View style={styles.weightHeader}>
+            <Ionicons name="scale-outline" size={18} color={Colors.macroProtein} />
+            <Text style={styles.weightTitle}>LOG TODAY'S WEIGHT</Text>
+          </View>
+          {latestWeight && (
+            <Text style={styles.weightLast}>
+              Last logged: {latestWeight.weightKg} kg on {latestWeight.date}
+            </Text>
+          )}
+          <View style={styles.weightRow}>
+            <TextInput
+              style={styles.weightInput}
+              value={weightInput}
+              onChangeText={setWeightInput}
+              placeholder={String(profile?.weightKg ?? '70.0')}
+              placeholderTextColor={Colors.textMuted}
+              keyboardType="decimal-pad"
+              maxLength={6}
+            />
+            <Text style={styles.weightUnit}>kg</Text>
+            <TouchableOpacity
+              style={[styles.weightSaveBtn, saving && { opacity: 0.6 }]}
+              onPress={handleSaveWeight}
+              disabled={saving || !weightInput}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.weightSaveText}>{saving ? 'Saving…' : 'Save'}</Text>
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -110,4 +161,13 @@ const styles = StyleSheet.create({
   infoValue: { fontFamily: FontFamily.heading, fontSize: 14, color: Colors.textPrimary },
   settingsBtn: { width: '100%', flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: Colors.surfaceCard, borderRadius: 16, padding: 16, marginTop: 16, borderWidth: 1, borderColor: Colors.border },
   settingsBtnText: { fontFamily: FontFamily.heading, fontSize: 15, color: Colors.textPrimary, flex: 1 },
+  weightCard: { width: '100%', marginTop: 16, backgroundColor: Colors.surfaceCard, borderRadius: 16, borderWidth: 1, borderColor: Colors.macroProtein + '40', padding: 16, gap: 10 },
+  weightHeader: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  weightTitle: { fontFamily: FontFamily.heading, fontSize: 11, color: Colors.macroProtein, letterSpacing: 2 },
+  weightLast: { fontFamily: FontFamily.body, fontSize: 12, color: Colors.textMuted },
+  weightRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  weightInput: { flex: 1, fontFamily: FontFamily.extraBold, fontSize: 22, color: Colors.textPrimary, backgroundColor: Colors.surfaceContainer, borderRadius: Radius.md, paddingHorizontal: 14, paddingVertical: 10, textAlign: 'center' },
+  weightUnit: { fontFamily: FontFamily.heading, fontSize: 15, color: Colors.textMuted },
+  weightSaveBtn: { backgroundColor: Colors.primary, borderRadius: Radius.md, paddingHorizontal: 20, paddingVertical: 12 },
+  weightSaveText: { fontFamily: FontFamily.heading, fontSize: 14, color: Colors.onPrimary },
 });

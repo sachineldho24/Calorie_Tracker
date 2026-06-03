@@ -43,6 +43,15 @@ export interface AssistantMemory {
   /** Ingredients/foods to NEVER suggest under any circumstance. */
   allergies: string[];
 
+  // ── Pantry (what's available right now) ──────────────────────────────────
+  /**
+   * Ingredients the user has confirmed they currently own.
+   * When non-empty the AI suggests meals using ONLY these items.
+   * Cleared explicitly by the user (not auto-cleared — pantry items are
+   * usually stable across a day).
+   */
+  pantryItems: string[];
+
   // ── Soft constraints ──────────────────────────────────────────────────────
   /** Foods the user dislikes — avoid, but AI may offer swaps or motivation. */
   dislikes: string[];
@@ -85,6 +94,7 @@ export interface AssistantMemory {
 
 const EMPTY: AssistantMemory = {
   allergies: [],
+  pantryItems: [],
   dislikes: [],
   preferences: [],
   dietaryStyle: null,
@@ -256,6 +266,26 @@ export async function incrementSession(mem: AssistantMemory): Promise<AssistantM
 
 // ─── Passive feedback ─────────────────────────────────────────────────────────
 
+/** Set the user's current pantry. Pass [] to clear. */
+export async function setPantryItems(items: string[]): Promise<AssistantMemory> {
+  const mem = await loadMemory();
+  const updated = { ...mem, pantryItems: items.map(i => i.trim()).filter(Boolean) };
+  await saveMemory(updated);
+  return updated;
+}
+
+/** Remove one ingredient from the pantry (the "❌ don't have this" action). */
+export async function removePantryItem(ingredient: string): Promise<AssistantMemory> {
+  const mem = await loadMemory();
+  const token = ingredient.toLowerCase().trim();
+  const updated = {
+    ...mem,
+    pantryItems: mem.pantryItems.filter(i => i.toLowerCase() !== token),
+  };
+  await saveMemory(updated);
+  return updated;
+}
+
 export async function recordFeedback(entry: FeedbackEntry): Promise<AssistantMemory> {
   const mem = await loadMemory();
   const token = entry.suggestionTitle.toLowerCase();
@@ -284,6 +314,8 @@ export async function recordFeedback(entry: FeedbackEntry): Promise<AssistantMem
 export function memoryToPromptContext(mem: AssistantMemory): string {
   const lines: string[] = [];
 
+  if (mem.pantryItems.length > 0)
+    lines.push(`PANTRY MODE — use ONLY these available ingredients: ${mem.pantryItems.join(', ')}. Do not suggest anything requiring ingredients not on this list.`);
   if (mem.allergies.length > 0)
     lines.push(`ALLERGIES — NEVER include: ${mem.allergies.join(', ')}.`);
   if (mem.dislikes.length > 0)

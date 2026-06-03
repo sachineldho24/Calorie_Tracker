@@ -16,6 +16,7 @@ import {
   getUseLocation,
   setUseLocation as persistUseLocation,
 } from '../lib/storage';
+import { useApp } from '../context/AppContext';
 import {
   loadProviderConfig,
   updateProviderConfig,
@@ -33,6 +34,7 @@ const PROVIDERS: { type: ProviderType; label: string; icon: keyof typeof Ionicon
 ];
 
 export default function SettingsScreen() {
+  const { resetApp } = useApp();
   const [notifications, setNotifications] = useState(true);
   const [haptics, setHaptics] = useState(true);
   const [metric, setMetric] = useState(true);
@@ -116,6 +118,14 @@ export default function SettingsScreen() {
       { text: 'Cancel', style: 'cancel' },
       { text: 'Delete Everything', style: 'destructive', onPress: async () => {
         await clearAllData();
+        // Reset in-memory context state — without this, AppContext keeps
+        // onboardingDone:true and the index gate skips onboarding.
+        resetApp();
+        // Reset local UI state
+        setHasSavedKey(false);
+        setApiKeyInput('');
+        setProviderKey('');
+        setProviderKeyInput('');
         router.replace('/');
       }},
     ]);
@@ -133,7 +143,7 @@ export default function SettingsScreen() {
     {
       title: 'APP',
       items: [
-        { icon: 'information-circle-outline', label: 'About Kcal.AI', value: 'v1.0.0' },
+        { icon: 'information-circle-outline', label: 'About CalSnap', value: 'v1.0.0' },
         { icon: 'shield-checkmark-outline', label: 'Privacy Policy' },
         { icon: 'document-text-outline', label: 'Terms of Service' },
       ],
@@ -327,7 +337,7 @@ export default function SettingsScreen() {
           </TouchableOpacity>
         </View>
 
-        <Text style={styles.footer}>Kcal.AI v1.0.0 · Made for 8x Engineer Contest</Text>
+        <Text style={styles.footer}>CalSnap v1.0.0 · Made for 8x Engineer Contest</Text>
         <View style={{ height: 40 }} />
       </ScrollView>
     </SafeAreaView>

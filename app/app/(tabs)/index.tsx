@@ -14,6 +14,7 @@ import WeekStrip from '../../components/WeekStrip';
 import MacroBar from '../../components/MacroBar';
 import * as Location from 'expo-location';
 import AssistantCard from '../../components/AssistantCard';
+import HealthImpactCard from '../../components/HealthImpactCard';
 import {
   getMealSuggestion,
   mealSlotForHour,
@@ -49,10 +50,17 @@ export default function HomeScreen() {
   const { targets, summary, profile, selectedDate, setSelectedDate, streak, waterGlasses, drinkWater } = useApp();
   const remaining = Math.max(0, targets.calories - summary.totalCalories);
 
+  // Derive logged dates from the summary entries for the week (use unique dates from all entries)
+  // We only have today's entries in summary; for the full week we'll derive from the week days
+  // that have the selectedDate's entries. Since storage loads per-date, use a simple heuristic:
+  // mark selectedDate as logged if it has entries, and persist nothing extra.
+  const loggedDates = summary.entries.length > 0 ? [selectedDate] : [];
+
   // === AI meal assistant ===
   const slot: MealSlot = mealSlotForHour(new Date().getHours());
   const [suggestion, setSuggestion] = useState<MealSuggestion | null>(null);
   const [suggestionLoading, setSuggestionLoading] = useState(false);
+  const [refreshSeed, setRefreshSeed] = useState(0);
 
   // === Assistant memory + engagement question ===
   const [memory, setMemory] = useState<AssistantMemory | null>(null);
@@ -75,6 +83,9 @@ export default function HomeScreen() {
       const cached = await getCachedSuggestion<MealSuggestion>(today, slot);
       if (cached) { setSuggestion(cached); return; }
     }
+    // Increment seed on manual refresh so the AI gets a different variety hint
+    const currentSeed = force ? refreshSeed + 1 : refreshSeed;
+    if (force) setRefreshSeed(currentSeed);
     setSuggestionLoading(true);
     try {
       const region = await resolveRegion();
@@ -88,6 +99,8 @@ export default function HomeScreen() {
         },
         goalType: profile?.goalType,
         region,
+        refreshSeed: currentSeed,
+        pantryItems: memory?.pantryItems?.length ? memory.pantryItems : undefined,
       });
       setSuggestion(result);
       if (!result.isFallback) await saveCachedSuggestion(today, slot, result);
@@ -125,7 +138,12 @@ export default function HomeScreen() {
         {/* Header */}
         <View style={styles.header}>
           <View>
-            <Text style={styles.greeting}>Kcal.AI</Text>
+            <Text style={styles.greetingSmall}>
+              {new Date().getHours() < 12 ? 'Good morning' : new Date().getHours() < 17 ? 'Good afternoon' : 'Good evening'} 👋
+            </Text>
+            <Text style={styles.greeting}>
+              {profile?.name || 'CalSnap'}
+            </Text>
             <Text style={styles.date}>
               {new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
             </Text>
@@ -137,7 +155,7 @@ export default function HomeScreen() {
         </View>
 
         {/* Week Strip */}
-        <WeekStrip selectedDate={selectedDate} onSelectDate={setSelectedDate} />
+        <WeekStrip selectedDate={selectedDate} onSelectDate={setSelectedDate} loggedDates={loggedDates} />
 
         {/* Macro Rings */}
         <View style={styles.ringsSection}>
@@ -152,6 +170,12 @@ export default function HomeScreen() {
             fatTarget={targets.fatG}
             size={220}
           />
+          <View style={styles.nextMealBadge}>
+            <View style={styles.nextMealDot} />
+            <Text style={styles.nextMealText}>
+              Next: {slot.charAt(0).toUpperCase() + slot.slice(1)}
+            </Text>
+          </View>
         </View>
 
         {/* Quick Stats */}
@@ -170,6 +194,11 @@ export default function HomeScreen() {
           </View>
         </View>
 
+        {/* Health Impact */}
+        <View style={styles.section}>
+          <HealthImpactCard summary={summary} targets={targets} />
+        </View>
+
         {/* AI Meal Assistant */}
         <View style={styles.section}>
           <AssistantCard
@@ -183,7 +212,11 @@ export default function HomeScreen() {
             onQuestionAnswered={(updated) => {
               setMemory(updated);
               setPendingQuestion(getNextQuestion(updated));
-              // Refresh suggestion with new memory context
+              loadSuggestion(true);
+            }}
+            onMemoryUpdated={(updated) => {
+              setMemory(updated);
+              // Re-fetch with updated pantry / constraints
               loadSuggestion(true);
             }}
           />
@@ -227,11 +260,15 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   scroll: { paddingBottom: 20 },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingTop: 8 },
+  greetingSmall: { fontFamily: FontFamily.body, fontSize: 13, color: Colors.textMuted },
   greeting: { fontFamily: FontFamily.extraBold, fontSize: 24, color: Colors.primary },
   date: { fontFamily: FontFamily.body, fontSize: 13, color: Colors.textMuted, marginTop: 2 },
   streakBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: Colors.macroCarbBg, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20 },
   streakText: { fontFamily: FontFamily.heading, fontSize: 14, color: Colors.macroCarb },
-  ringsSection: { alignItems: 'center', paddingVertical: 24 },
+  ringsSection: { alignItems: 'center', paddingVertical: 16 },
+  nextMealBadge: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: Colors.surfaceCard, borderRadius: 20, paddingHorizontal: 14, paddingVertical: 7, borderWidth: 1, borderColor: Colors.border, marginTop: 4 },
+  nextMealDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: Colors.macroCarb },
+  nextMealText: { fontFamily: FontFamily.bodyMedium, fontSize: 12, color: Colors.textPrimary },
   statsRow: { flexDirection: 'row', paddingHorizontal: 20, gap: 12 },
   statCard: { flex: 1, alignItems: 'center', backgroundColor: Colors.surfaceCard, borderRadius: 16, paddingVertical: 16, borderWidth: 1, borderColor: Colors.border },
   statCardAccent: { borderColor: Colors.primary + '40' },

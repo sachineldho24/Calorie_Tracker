@@ -6,19 +6,10 @@
  *             reasoning. Requires a Gemini API key.
  *   groq    — Groq Cloud (OpenAI-compatible REST). Free tier, very fast.
  *             Used for: text suggestions, recipe steps, structured JSON.
- *             Vision models available on Groq (llama-4 scout) can also handle
- *             photo scanning when selected.
- *   custom  — Any OpenAI-compatible base URL + key (e.g. Ollama, Together AI,
- *             OpenRouter). Used for the same text tasks as Groq.
+ *   custom  — Any OpenAI-compatible base URL + key (e.g. OpenRouter).
  *
- * Image generation (meal pictures) uses Pollinations.ai — a free, keyless
- * service. This is independent of the provider setting.
- *
- * Rule of thumb baked into this module:
- *   - Vision / photo scanning → always prefer Gemini when a key is present;
- *     fall back to the configured text provider if it supports vision.
- *   - Text suggestions / recipe steps → use the configured text provider
- *     (groq or custom) first; fall back to Gemini if no text provider is set.
+ * Meal images are served from TheMealDB (free, no key) — real food photos.
+ * No AI generation needed for images.
  */
 import { getGeminiApiKey, getProviderConfig, saveProviderConfig } from './storage';
 
@@ -28,17 +19,9 @@ export type ProviderType = 'gemini' | 'groq' | 'custom';
 
 export interface ProviderConfig {
   type: ProviderType;
-  /** API key for the selected provider. */
   apiKey: string;
-  /**
-   * Base URL for OpenAI-compatible providers (groq / custom).
-   * groq default: 'https://api.groq.com/openai/v1'
-   * custom: user-supplied
-   */
   baseUrl?: string;
-  /** Model ID for text tasks. */
   textModel?: string;
-  /** Model ID for vision tasks (if the provider supports it). */
   visionModel?: string;
 }
 
@@ -50,7 +33,6 @@ export const PROVIDER_DEFAULTS: Record<ProviderType, Partial<ProviderConfig>> = 
   },
   groq: {
     baseUrl: 'https://api.groq.com/openai/v1',
-    // llama-4-scout supports vision; gemma2 is fast for text-only
     textModel: 'meta-llama/llama-4-scout-17b-16e-instruct',
     visionModel: 'meta-llama/llama-4-scout-17b-16e-instruct',
   },
@@ -77,11 +59,6 @@ export async function updateProviderConfig(patch: Partial<ProviderConfig>): Prom
 
 // ─── Key resolution ───────────────────────────────────────────────────────────
 
-/**
- * Resolve the Gemini key: user-supplied (AsyncStorage) → bundled env var.
- * This is the same logic as ai-sanity.ts `resolveGeminiKey` but lives here
- * so providers can reference it without circular imports.
- */
 async function resolveGeminiKeyInternal(): Promise<string> {
   const userKey = await getGeminiApiKey();
   return (userKey || process.env.EXPO_PUBLIC_GEMINI_API_KEY || '').trim();
@@ -133,10 +110,6 @@ export interface ChatMessage {
   content: string | { type: string; text?: string; image_url?: { url: string } }[];
 }
 
-/**
- * Call an OpenAI-compatible chat/completions endpoint and return the assistant
- * message content as a string. Used by Groq and custom providers.
- */
 export async function openAICompatibleChat(
   baseUrl: string,
   apiKey: string,
@@ -145,19 +118,12 @@ export async function openAICompatibleChat(
   jsonMode = false,
 ): Promise<string> {
   const url = `${baseUrl.replace(/\/$/, '')}/chat/completions`;
-  const body: Record<string, unknown> = {
-    model,
-    messages,
-    temperature: 0.7,
-  };
+  const body: Record<string, unknown> = { model, messages, temperature: 0.7 };
   if (jsonMode) body.response_format = { type: 'json_object' };
 
   const res = await fetch(url, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`,
-    },
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
     body: JSON.stringify(body),
   });
 
@@ -171,50 +137,42 @@ export async function openAICompatibleChat(
   return content;
 }
 
-// ─── Pollinations image URL (free, keyless) ───────────────────────────────────
+// ─── Meal image lookup via TheMealDB (free, no key) ──────────────────────────
+//
+// TheMealDB provides real human food photography across all world cuisines.
+// No API key needed. ~300+ dishes indexed by name search.
+// Rate limit: generous (public API, no documented limit).
+//
+// Pollinations.ai was previously used but now returns HTTP 402 (Paywalled).
+// Unsplash Source (source.unsplash.com) also returns 503.
+
+/** Extract the primary food noun for database lookup. */
+function extractFoodKeyword(title: string): string {
+  const stripped = title
+    .toLowerCase()
+    .replace(/\b(grilled|baked|roasted|steamed|fried|boiled|sautéed|pan-seared|stir-fried|crispy|spicy|creamy|fresh|homemade|high-protein|lean|low-fat|with|and|or|the|a|an)\b/g, '')
+    .replace(/[^a-z\s]/g, '')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+  return stripped.slice(0, 2).join(' ') || title.split(' ')[0];
+}
 
 /**
- * Slot-specific lighting and mood context for food photography.
- * Morning light reads differently from evening candlelight — Pollinations
- * responds strongly to these cues and produces much more realistic images.
+ * Search TheMealDB by dish name and return the real photo URL.
+ * Returns null when no dish matches the keyword.
+ * The meal image component then shows a styled placeholder fallback.
  */
-const SLOT_PHOTO_CONTEXT: Record<string, string> = {
-  breakfast: 'soft morning sunlight streaming through a window, warm golden hour light, bright and fresh atmosphere, light wooden table',
-  lunch:     'natural daylight, bright and clean, minimal shadow, modern kitchen counter, matte ceramic plate',
-  dinner:    'warm ambient restaurant lighting, slightly dim moody atmosphere, dark slate or wood surface, soft bokeh background',
-  snack:     'casual lifestyle flat-lay, neutral linen background, natural diffused light, rustic wooden board',
-};
-
-/**
- * Build a high-quality Pollinations.ai image URL.
- *
- * Prompt engineering principles applied:
- * - Lead with the exact dish name and hero ingredients (most weight in diffusion)
- * - Slot-specific lighting/mood (morning vs evening changes the whole feel)
- * - Camera language: lens, angle, aperture cues
- * - Style anchor: Ottolenghi cookbook / Bon Appétit / Kinfolk magazine aesthetic
- * - Negative-space foreground for text overlay readability
- * - No generic filler ("high quality", "amazing") — specificity beats superlatives
- *
- * Returns a URL passable directly to <Image source={{ uri }}>.
- * No API key, no rate-limit enforcement, CORS-free in React Native.
- */
-export function mealImageUrl(title: string, slot: string): string {
-  const lighting = SLOT_PHOTO_CONTEXT[slot] ?? SLOT_PHOTO_CONTEXT.lunch;
-  const prompt = [
-    `${title}`,
-    `beautifully plated on a ${slot === 'dinner' ? 'dark matte ceramic bowl' : 'white ceramic plate'}`,
-    lighting,
-    'food photography, 85mm portrait lens, f/2.0 shallow depth of field',
-    'Ottolenghi cookbook style, Bon Appetit magazine editorial',
-    'macro detail on texture and garnish, vibrant fresh colors',
-    'negative space in foreground for text overlay',
-    'no watermark, no text, no logos, photorealistic',
-  ].join(', ');
-
-  const encoded = encodeURIComponent(prompt);
-  // Use a hash of the title as seed so the same meal always gets the same image
-  // (stable across refreshes) but different meals get genuinely different images.
-  const seed = title.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0) % 9999;
-  return `https://image.pollinations.ai/prompt/${encoded}?width=800&height=500&nologo=true&seed=${seed}`;
+export async function fetchMealDbImage(title: string): Promise<string | null> {
+  try {
+    const keyword = extractFoodKeyword(title);
+    const url = `https://www.themealdb.com/api/json/v1/1/search.php?s=${encodeURIComponent(keyword)}`;
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const data = await res.json();
+    const thumb = data?.meals?.[0]?.strMealThumb as string | undefined;
+    return thumb ?? null;
+  } catch {
+    return null;
+  }
 }

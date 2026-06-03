@@ -1,6 +1,6 @@
 /**
- * WeekStrip — Horizontal day selector
- * Shows 7 days with active state highlighted in Electric Lime
+ * WeekStrip — Horizontal day selector with completion dots.
+ * Green dot = has logged entries, grey = no entries, active day = highlighted.
  */
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
@@ -11,11 +11,14 @@ import { getWeekDays, getDayInitial, formatDate } from '../lib/nutrition';
 interface WeekStripProps {
   selectedDate: string;
   onSelectDate: (date: string) => void;
+  /** Dates (YYYY-MM-DD) that have at least one food entry logged. */
+  loggedDates?: string[];
 }
 
-export default function WeekStrip({ selectedDate, onSelectDate }: WeekStripProps) {
+export default function WeekStrip({ selectedDate, onSelectDate, loggedDates = [] }: WeekStripProps) {
   const days = getWeekDays();
   const today = formatDate(new Date());
+  const loggedSet = new Set(loggedDates);
 
   return (
     <ScrollView
@@ -27,6 +30,9 @@ export default function WeekStrip({ selectedDate, onSelectDate }: WeekStripProps
         const dateStr = formatDate(day);
         const isActive = dateStr === selectedDate;
         const isToday = dateStr === today;
+        const isLogged = loggedSet.has(dateStr);
+        // Future days can't be logged
+        const isFuture = dateStr > today;
 
         return (
           <TouchableOpacity
@@ -41,7 +47,14 @@ export default function WeekStrip({ selectedDate, onSelectDate }: WeekStripProps
             <Text style={[styles.dayDate, isActive && styles.dayDateActive]}>
               {day.getDate()}
             </Text>
-            {isToday && !isActive && <View style={styles.todayDot} />}
+            {/* Completion dot */}
+            {!isActive && !isFuture && (
+              <View style={[
+                styles.completionDot,
+                isLogged ? styles.dotLogged : (isToday ? styles.dotToday : styles.dotMissed),
+              ]} />
+            )}
+            {isActive && isLogged && <View style={styles.dotActiveLogged} />}
           </TouchableOpacity>
         );
       })}
@@ -78,23 +91,26 @@ const styles = StyleSheet.create({
     color: Colors.textMuted,
     letterSpacing: 1,
   },
-  dayInitialActive: {
-    color: Colors.onPrimary,
-  },
+  dayInitialActive: { color: Colors.onPrimary },
   dayDate: {
     fontFamily: FontFamily.heading,
     fontSize: 16,
     color: Colors.textPrimary,
   },
-  dayDateActive: {
-    color: Colors.onPrimary,
-  },
-  todayDot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: Colors.primary,
+  dayDateActive: { color: Colors.onPrimary },
+  completionDot: {
+    width: 5,
+    height: 5,
+    borderRadius: 3,
     position: 'absolute',
     bottom: 6,
+  },
+  dotLogged: { backgroundColor: Colors.statusSuccess },
+  dotToday: { backgroundColor: Colors.primary },
+  dotMissed: { backgroundColor: Colors.surfaceContainerHigh },
+  dotActiveLogged: {
+    width: 5, height: 5, borderRadius: 3,
+    backgroundColor: Colors.onPrimary + '80',
+    position: 'absolute', bottom: 6,
   },
 });

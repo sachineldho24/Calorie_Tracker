@@ -58,6 +58,10 @@ export interface SuggestionInput {
   remaining: { calories: number; proteinG: number; carbsG: number; fatG: number };
   goalType?: GoalType;
   region?: string | null;
+  /** Incremented each manual refresh to get a different suggestion. */
+  refreshSeed?: number;
+  /** When set, AI must only use these available ingredients. */
+  pantryItems?: string[];
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -113,8 +117,21 @@ function fallbackRecipe(title: string): RecipeGuide {
 
 // ─── Prompt builders ──────────────────────────────────────────────────────────
 
+// Rotate through these variety phrases so each refresh gets a genuinely
+// different suggestion even when macro targets are the same.
+const VARIETY_PHRASES = [
+  'Suggest something different from the obvious default.',
+  'Think of a less common but practical option.',
+  'Go for a different cuisine than usual.',
+  'Suggest a quick bowl or wrap-style meal.',
+  'Think of a high-satiety option with good texture.',
+  'Suggest something that works cold or meal-prepped.',
+  'Go for a plant-forward protein source this time.',
+  'Think eggs or dairy as the protein base.',
+];
+
 function buildSuggestionPrompt(input: SuggestionInput, memCtx: string): string {
-  const { slot, remaining, goalType, region } = input;
+  const { slot, remaining, goalType, region, refreshSeed = 0, pantryItems } = input;
   const goalLine =
     goalType === 'gain' ? 'Goal: build muscle — prioritise protein above all else.'
     : goalType === 'lose' ? 'Goal: lose weight — high protein, lower calories.'
@@ -122,11 +139,16 @@ function buildSuggestionPrompt(input: SuggestionInput, memCtx: string): string {
   const regionLine = region
     ? `Bias toward ${region} cuisine using locally common ingredients.`
     : 'Keep ingredients widely accessible.';
+  const varietyHint = VARIETY_PHRASES[refreshSeed % VARIETY_PHRASES.length];
+  const pantryLine = pantryItems && pantryItems.length > 0
+    ? `PANTRY CONSTRAINT — the user only has these ingredients available RIGHT NOW: ${pantryItems.join(', ')}. You MUST suggest a meal using only items from this list. Do not suggest anything requiring ingredients not listed.`
+    : '';
 
   return `You are a personal nutrition coach. Suggest ONE simple, high-protein ${slot}.
 ${goalLine}
 Remaining today: ${remaining.calories} kcal | ${remaining.proteinG}g protein | ${remaining.carbsG}g carbs | ${remaining.fatG}g fat.
-${regionLine}
+${pantryLine || regionLine}
+Variety instruction: ${varietyHint}
 Rules:
 - Prioritise protein. Minimum 25g per suggestion unless macros are already met.
 - Keep it SIMPLE — max 5 ingredients, no complex techniques. Busy-person food.

@@ -1,18 +1,28 @@
 /**
- * MealImage — free, keyless meal photo via Pollinations.ai.
+ * MealImage — shows a real food photograph from TheMealDB.
  *
- * Usage: <MealImage title="Grilled chicken bowl" slot="lunch" style={...} />
+ * TheMealDB provides free, no-key-required real food photography across
+ * all world cuisines. The keyword the AI chose as the dish title is
+ * used as the lookup query. When no match is found, a styled food-emoji
+ * placeholder is shown instead.
  *
- * Pollinations format:
- *   https://image.pollinations.ai/prompt/<encoded-text>?width=W&height=H&nologo=true
- * No API key, no cost, works directly as an <Image> source URI in React Native.
+ * No AI generation ever — Pollinations.ai now requires payment (HTTP 402),
+ * and Unsplash Source (source.unsplash.com) returns 503 errors.
  */
-import React, { useState } from 'react';
-import { Image, View, StyleSheet, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { Image, View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '../constants/Colors';
-import { mealImageUrl } from '../lib/ai-providers';
+import { fetchMealDbImage } from '../lib/ai-providers';
 import { MealSlot } from '../lib/meal-assistant';
+
+// Simple emoji map for common meal categories used as fallback
+const SLOT_EMOJI: Record<string, string> = {
+  breakfast: '🍳',
+  lunch: '🥗',
+  dinner: '🍲',
+  snack: '🍎',
+};
 
 interface MealImageProps {
   title: string;
@@ -22,29 +32,58 @@ interface MealImageProps {
   borderRadius?: number;
 }
 
-export default function MealImage({ title, slot, width = 320, height = 180, borderRadius = 12 }: MealImageProps) {
+export default function MealImage({ title, slot, width, height = 160, borderRadius = 12 }: MealImageProps) {
+  const [uri, setUri] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-  const uri = mealImageUrl(title, slot);
+  const [notFound, setNotFound] = useState(false);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    setLoading(true);
+    setNotFound(false);
+    setUri(null);
+
+    fetchMealDbImage(title).then(thumb => {
+      if (!mountedRef.current) return;
+      if (thumb) {
+        setUri(thumb);
+      } else {
+        setNotFound(true);
+      }
+      setLoading(false);
+    });
+
+    return () => { mountedRef.current = false; };
+  }, [title]);
+
+  const containerStyle: any = {
+    width: width ?? '100%',
+    height,
+    borderRadius,
+    overflow: 'hidden',
+    backgroundColor: Colors.surfaceContainerHigh,
+  };
 
   return (
-    <View style={[styles.container, { width, height, borderRadius }]}>
-      {loading && !error && (
-        <View style={[StyleSheet.absoluteFill, styles.placeholder, { borderRadius }]}>
+    <View style={containerStyle}>
+      {loading && (
+        <View style={[StyleSheet.absoluteFill, styles.placeholder]}>
           <ActivityIndicator size="small" color={Colors.macroProtein} />
         </View>
       )}
-      {error ? (
-        <View style={[StyleSheet.absoluteFill, styles.placeholder, { borderRadius }]}>
-          <Ionicons name="image-outline" size={32} color={Colors.textMuted} />
+      {notFound && (
+        <View style={[StyleSheet.absoluteFill, styles.placeholder]}>
+          <Text style={styles.emoji}>{SLOT_EMOJI[slot] ?? '🍽️'}</Text>
         </View>
-      ) : (
+      )}
+      {uri && !notFound && (
         <Image
           source={{ uri }}
-          style={[StyleSheet.absoluteFill, { borderRadius }]}
+          style={StyleSheet.absoluteFill}
           resizeMode="cover"
           onLoad={() => setLoading(false)}
-          onError={() => { setLoading(false); setError(true); }}
+          onError={() => { setNotFound(true); setLoading(false); }}
         />
       )}
     </View>
@@ -52,6 +91,6 @@ export default function MealImage({ title, slot, width = 320, height = 180, bord
 }
 
 const styles = StyleSheet.create({
-  container: { overflow: 'hidden', backgroundColor: Colors.surfaceContainerHigh },
   placeholder: { alignItems: 'center', justifyContent: 'center' },
+  emoji: { fontSize: 48 },
 });
