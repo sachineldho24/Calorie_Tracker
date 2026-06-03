@@ -1,100 +1,154 @@
-# Kcal.AI - Calorie Tracker
+# Kcal.AI — AI-Powered Calorie Tracker
 
-An AI-powered mobile application built with React Native and Expo that tracks calories by analyzing pictures of your food using the Google Gemini Vision API. It also features a personalised meal-suggestion assistant, voice/text meal logging, and a health impact dashboard — all running offline-first on your device.
+> Point your camera at any meal. Describe it in plain English. Get instant macros, personalised meal suggestions, step-by-step recipes, and health impact scores — all running offline-first on your device.
+
+Built with **React Native + Expo**, powered by **Google Gemini Vision** and **Groq** (free tier), with a persistent AI memory that learns your allergies, preferences, and cooking style across sessions.
+
+---
+
+## Screenshots
+
+### Dashboard
+
+| Home Dashboard | Live Update After Eating | Profile & Targets |
+|:---:|:---:|:---:|
+| <img src="Screenshots/01-home-dashboard.jpeg" width="220"> | <img src="Screenshots/02-home-live.jpeg" width="220"> | <img src="Screenshots/03-profile.jpeg" width="220"> |
+| AI coach, calorie rings & health impact | Health impact and macros update live | Daily macro targets and body stats |
+
+### Logging Meals — Three Ways
+
+| Scan Camera | AI Scan Result | Voice / Text Logging |
+|:---:|:---:|:---:|
+| <img src="Screenshots/04-scan-camera.jpeg" width="220"> | <img src="Screenshots/05-scan-result.jpeg" width="220"> | <img src="Screenshots/06-voice-logging.jpeg" width="220"> |
+| Gallery · Voice · Camera · Manual · Barcode | Nadan Chicken → 460 kcal · 63g protein | Describe a meal, AI extracts macros instantly |
+
+### AI Intelligence
+
+| AI Recipe Guide | Feedback & Memory | Weekly Progress |
+|:---:|:---:|:---:|
+| <img src="Screenshots/07-recipe-guide.jpeg" width="220"> | <img src="Screenshots/08-ai-feedback.jpeg" width="220"> | <img src="Screenshots/09-progress.jpeg" width="220"> |
+| Kerala prawn recipe with step-by-step tips | Allergic · Don't like · Loved it — AI remembers | Streak · weekly chart · weight trend |
+
+---
+
+## Features
+
+- **AI Photo Scanning** — Gemini Vision analyses any food photo and returns instant calorie + macro estimates.
+- **Voice / Text Logging** — Describe a meal in plain English ("a bowl of dal rice with yogurt") and the AI identifies every item.
+- **Personalised AI Coach** — Time-aware suggestions (breakfast / lunch / dinner / snack) fitted to your remaining macros and goal.
+- **Persistent Memory** — The AI remembers your allergies, dislikes, favourites, dietary style, cooking skill, and budget across every session and provider change.
+- **Pantry Mode** — Tell the AI what's in your fridge; it suggests only meals you can actually make right now.
+- **Step-by-Step Recipes** — Tap any suggestion to get a full recipe with timings, tips, and a macro note.
+- **Health Impact Card** — Estimated healthy-life minutes gained and CO₂e footprint for the day, updating live.
+- **Multi-Provider AI** — Switch between Gemini, Groq (free tier), or any OpenAI-compatible endpoint in Settings. Falls back gracefully.
+- **Progress Tracking** — Weekly calorie chart, macro breakdown, weight trend, and streak counter.
+- **Offline-First** — All data in AsyncStorage. No account, no server, no lock-in.
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| App framework | React Native · Expo SDK 51 |
+| Vision AI | Google Gemini (`gemini-flash-latest`) |
+| Text AI (suggestions, recipes, voice) | Groq Cloud (free tier, OpenAI-compatible) |
+| Food photography | TheMealDB (free, no key) |
+| Offline storage | AsyncStorage |
+| Language | TypeScript (strict mode) |
+
+---
 
 ## Prerequisites
 
-- **Expo Go App**: Make sure you have the Expo Go app installed on your Android/iOS device. This project is built using Expo SDK 51.
-- **Node.js**: Recommended version 18 or above.
+- **Expo Go** on your Android or iOS device (SDK 51)
+- **Node.js** 18+
+
+---
 
 ## Getting Started
 
-1. **Install Dependencies**
-   Navigate into the `app` directory and install the necessary packages:
-   ```bash
-   cd app
-   npm install
-   ```
+```bash
+cd app
+npm install
+```
 
-2. **API Key Setup**
-   The app supports three AI providers. You need at least one key to enable AI features.
+### API Key Setup
 
-   **Option A — Google Gemini (recommended for photo scanning):**
-   - Get your free API key from Google AI Studio: [https://aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey)
-   - Create a file named `.env` in the `app` directory (`app/.env`) and add:
-     ```env
-     EXPO_PUBLIC_GEMINI_API_KEY=your_api_key_here
-     ```
-   - You can also enter the key in-app at **Settings → Gemini Key (vision/scanning)**.
+The app supports three AI providers. You need at least one key to enable AI features.
 
-   **Option B — Groq (free, great for meal suggestions):**
-   - Get a free key at [https://console.groq.com/keys](https://console.groq.com/keys).
-   - Enter it in-app at **Settings → AI Provider → Groq → Groq API Key**.
+**Option A — Google Gemini (recommended for photo scanning)**
 
-   **Option C — Custom OpenAI-compatible endpoint:**
-   - Set your base URL and model ID in **Settings → AI Provider → Custom**.
-   - Supports any OpenAI-compatible API (OpenRouter, local Ollama, etc.).
+Get a free key at [Google AI Studio](https://aistudio.google.com/app/apikey), then create `app/.env`:
+
+```env
+EXPO_PUBLIC_GEMINI_API_KEY=your_key_here
+```
+
+You can also enter the key in-app at **Settings → Gemini Key (vision/scanning)**.
+
+**Option B — Groq (free, great for meal suggestions)**
+
+Get a free key at [console.groq.com](https://console.groq.com/keys), then enter it in-app at **Settings → AI Provider → Groq**.
+
+**Option C — Custom OpenAI-compatible endpoint**
+
+Set your base URL and model ID at **Settings → AI Provider → Custom** (supports OpenRouter, local Ollama, etc.).
+
+---
 
 ## Running the App
 
-### Standard Local LAN Connection
-The easiest way to run the app is over your Local Area Network (Wi-Fi). Ensure your phone and PC are on the same Wi-Fi network.
+### LAN (recommended)
+Ensure your phone and PC share the same Wi-Fi network.
 
 ```bash
 cd app
 npx expo start -c
 ```
-*Note: If Expo tries to connect to `127.0.0.1`, force it to use your local IP:*
+
+If Expo falls back to `127.0.0.1`, force your local IP:
+
 ```powershell
-$env:REACT_NATIVE_PACKAGER_HOSTNAME="YOUR_LOCAL_IP_ADDRESS"; npx expo start -c
+$env:REACT_NATIVE_PACKAGER_HOSTNAME="YOUR_LOCAL_IP"; npx expo start -c
 ```
-*(Replace `YOUR_LOCAL_IP_ADDRESS` with your actual PC Wi-Fi IP, e.g., `192.168.1.x`)*
 
-### Windows Firewall Issues (LAN not connecting)
-If the Expo server is running but your phone cannot connect (endpoint is offline), Windows Defender Firewall is likely blocking incoming connections on port 8081.
+### Windows Firewall fix (if phone can't connect)
 
-**To fix this permanently (Run in PowerShell as Administrator):**
 ```powershell
+# Run as Administrator
 New-NetFirewallRule -DisplayName "Expo Metro Bundler (8081)" -Direction Inbound -LocalPort 8081 -Protocol TCP -Action Allow
 ```
 
-### Ngrok Tunnel (Alternative Method)
-If you are on a restrictive network (like a public cafe) or LAN isn't working, you can use a tunnel.
+### Ngrok tunnel (restrictive networks)
+
 ```bash
 npx expo start -c --tunnel
 ```
-*Troubleshooting:* If you get a `CommandError: TypeError: Cannot read properties of undefined (reading 'body')` or `ngrok tunnel took too long to connect`, it means the Ngrok tunneling service is currently experiencing outages or rate limits. In this case, use the LAN connection method above.
 
-## Features
+---
 
-- **AI Photo Scanning** — point your camera at any meal and get instant calorie + macro estimates via Gemini Vision.
-- **Text / Voice Logging** — describe a meal in plain English ("a bowl of dal rice with yogurt") and the AI extracts each item with macros automatically.
-- **Personalised Meal Assistant** — time-aware suggestions (breakfast / lunch / dinner / snack) that respect your remaining macros, dietary style, allergies, and pantry.
-- **Persistent AI Memory** — the assistant remembers your allergies, dislikes, favourites, cuisine preferences, cooking skill, and budget across sessions and provider changes.
-- **Recipe Guide** — tap any suggestion to get step-by-step cooking instructions generated on the fly.
-- **Multi-Provider AI** — swap between Gemini, Groq (free tier), or any OpenAI-compatible endpoint in Settings; the app falls back gracefully if a provider is unavailable.
-- **Health Impact Card** — see an estimate of healthy-life minutes gained and CO₂ footprint for today's meals.
-- **Progress Tracking** — weekly calorie chart, macro breakdown, and streak tracking.
-- **Offline-First** — all data lives in AsyncStorage; no account or server required.
+## Project Structure
 
-## Tech Stack
-- React Native (Expo SDK 51)
-- Google Gemini API (`gemini-flash-latest`) — photo vision + text
-- Groq Cloud (OpenAI-compatible, free tier) — fast text suggestions
-- TheMealDB API (free, no key) — real food photography
-- TypeScript (strict mode)
-- AsyncStorage — offline-first data layer
-
-## Screenshots
-
-| Onboarding: Weight Goal | Onboarding: Personal Info | Onboarding: Activity Level |
-|:---:|:---:|:---:|
-| <img src="Screenshots/screenshot-8.jpg" width="250"> | <img src="Screenshots/screenshot-9.jpg" width="250"> | <img src="Screenshots/screenshot-10.jpg" width="250"> |
-
-| Onboarding: Fitness Goal | Home Dashboard | Scan Meal |
-|:---:|:---:|:---:|
-| <img src="Screenshots/screenshot-11.jpg" width="250"> | <img src="Screenshots/screenshot-2.jpg" width="250"> | <img src="Screenshots/screenshot-6.jpg" width="250"> |
-
-| Review Scan Results | Food Diary | Progress Statistics |
-|:---:|:---:|:---:|
-| <img src="Screenshots/screenshot-7.jpg" width="250"> | <img src="Screenshots/screenshot-3.jpg" width="250"> | <img src="Screenshots/screenshot-4.jpg" width="250"> |
+```
+app/
+├── app/
+│   ├── (onboarding)/      # 4-step setup wizard
+│   ├── (tabs)/            # Home · Diary · Progress · Profile
+│   ├── scan.tsx           # Camera capture + Gemini Vision
+│   ├── voice-record.tsx   # Text / voice meal logging
+│   ├── review-edit.tsx    # Confirm & edit before saving
+│   └── settings.tsx       # Provider switcher + API keys
+├── components/
+│   ├── AssistantCard.tsx  # AI coach with memory & feedback
+│   └── HealthImpactCard.tsx
+├── context/AppContext.tsx  # Global store (useApp hook)
+└── lib/
+    ├── ai-providers.ts    # Gemini / Groq / Custom abstraction
+    ├── assistant-memory.ts # Persistent AI memory (AsyncStorage)
+    ├── meal-assistant.ts  # Suggestions + recipe generation
+    ├── voice-parse.ts     # NL → ScanResult
+    ├── ai-scan.ts         # Gemini Vision call
+    ├── nutrition.ts       # BMR → TDEE → macro math
+    └── storage.ts         # All AsyncStorage I/O
+```
