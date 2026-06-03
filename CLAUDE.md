@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Kcal.AI is an Expo / React Native (SDK 51) mobile app that tracks calories by analyzing food photos with the Google Gemini Vision API. It also features a personalised meal-suggestion assistant, voice/text meal logging, persistent AI memory, and a health impact dashboard. It is offline-first (all data in AsyncStorage) with a custom "Kinetic Noir" dark-mode design system.
+CalSnap is an Expo / React Native (SDK 51) mobile app that tracks calories by analyzing food photos with the Google Gemini Vision API. It also features a personalised meal-suggestion assistant, voice/text meal logging, persistent AI memory, and a health impact dashboard. It is offline-first (all data in AsyncStorage) with a custom "Kinetic Noir" dark-mode design system.
 
 ## Layout
 
@@ -40,7 +40,7 @@ Data flows through six layers, bottom to top:
 
 1. **`lib/nutrition.ts`** — pure domain layer. Owns all shared TypeScript types (`UserProfile`, `FoodEntry`, `DailySummary`, `DailyTargets`) and all the math: Mifflin-St Jeor BMR → TDEE (activity multiplier) → calorie target (goal-adjusted: −500 lose / +300 gain) → macro split (30% protein / 40% carbs / 30% fat). No I/O. Date helpers use `YYYY-MM-DD` strings as the canonical date key everywhere.
 
-2. **`lib/storage.ts`** — the only module that touches AsyncStorage. All food entries are stored under a single `@kcalai_food_entries` key as one JSON array and filtered/reduced in memory per date; profile, onboarding flag, streak, per-date water counters, Gemini key, provider config, and assistant memory each have their own keys (see the `KEYS` map). Streak logic lives in `updateStreak`.
+2. **`lib/storage.ts`** — the only module that touches AsyncStorage. All food entries are stored under a single `@calsnap_food_entries` key as one JSON array and filtered/reduced in memory per date; profile, onboarding flag, streak, per-date water counters, Gemini key, provider config, and assistant memory each have their own keys (see the `KEYS` map). Streak logic lives in `updateStreak`.
 
 3. **`lib/ai-scan.ts`** — Gemini Vision call. Sends a base64 image + a strict-JSON prompt, strips markdown fences from the response, and `JSON.parse`s into `ScanResult`. `scanResultToEntries` maps a `ScanResult` into the `FoodEntry` shape that `addEntry` expects.
 

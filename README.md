@@ -1,4 +1,4 @@
-# Kcal.AI — AI-Powered Calorie Tracker
+# CalSnap — AI-Powered Calorie Tracker
 
 > Point your camera at any meal. Describe it in plain English. Get instant macros, personalised meal suggestions, step-by-step recipes, and health impact scores — all running offline-first on your device.
 

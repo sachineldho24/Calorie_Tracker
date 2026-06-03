@@ -1,5 +1,5 @@
 /**
- * AI Provider abstraction for Kcal.AI
+ * AI Provider abstraction for CalSnap
  *
  * Three providers:
  *   gemini  — Google Gemini SDK. Used for: photo vision scanning, image-heavy

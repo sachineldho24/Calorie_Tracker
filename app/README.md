@@ -1,6 +1,6 @@
-# Kcal.AI — Calorie Tracker & AI Scanner (App Module)
+# CalSnap — Calorie Tracker & AI Scanner (App Module)
 
-Kcal.AI is a premium, dark-mode calorie tracking application built with Expo and React Native. It features a custom **"Kinetic Noir"** design system, an intuitive onboarding flow, daily macro tracking with animated rings, real Gemini Vision AI food scanner, weekly history charts, and streak/goal tracking.
+CalSnap is a premium, dark-mode calorie tracking application built with Expo and React Native. It features a custom **"Kinetic Noir"** design system, an intuitive onboarding flow, daily macro tracking with animated rings, real Gemini Vision AI food scanner, weekly history charts, and streak/goal tracking.
 
 ---
 
@@ -79,7 +79,7 @@ npm install
 ```
 
 ### 3. Gemini API Key Setup
-Kcal.AI requires a Gemini API Key to enable the AI food scanning feature.
+CalSnap requires a Gemini API Key to enable the AI food scanning feature.
 1. Get a free API key from Google AI Studio: [https://aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey)
 2. Create a file named `.env` inside the `app` directory (i.e. `app/.env`).
 3. Add your key to the file:

@@ -15,7 +15,7 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.kcalai.app",
+      "bundleIdentifier": "com.calsnap.app",
       "infoPlist": {
         "NSCameraUsageDescription": "CalSnap needs camera access to scan your meals and estimate nutrition.",
         "NSPhotoLibraryUsageDescription": "CalSnap needs photo library access to analyze food photos.",
@@ -28,7 +28,7 @@
         "backgroundColor": "#0C0C14"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.kcalai.app",
+      "package": "com.calsnap.app",
       "permissions": ["CAMERA", "ACCESS_COARSE_LOCATION"]
     },
     "web": {

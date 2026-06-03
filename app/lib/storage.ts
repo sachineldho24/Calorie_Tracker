@@ -16,18 +16,18 @@ import {
 } from './nutrition';
 
 const KEYS = {
-  USER_PROFILE: '@kcalai_user_profile',
-  ONBOARDING_COMPLETE: '@kcalai_onboarding_complete',
-  FOOD_ENTRIES: '@kcalai_food_entries',
-  STREAK: '@kcalai_streak',
-  WATER_INTAKE: '@kcalai_water_intake',
-  GEMINI_API_KEY: '@kcalai_gemini_api_key',
-  USE_LOCATION: '@kcalai_use_location',
-  MEAL_SUGGESTION: '@kcalai_meal_suggestion', // suffixed with _<date>_<slot>
-  PROVIDER_CONFIG: '@kcalai_provider_config',
-  ASSISTANT_MEMORY: '@kcalai_assistant_memory',
-  WEIGHT_HISTORY: '@kcalai_weight_history',
-  PROGRESS_PHOTOS: '@kcalai_progress_photos',
+  USER_PROFILE: '@calsnap_user_profile',
+  ONBOARDING_COMPLETE: '@calsnap_onboarding_complete',
+  FOOD_ENTRIES: '@calsnap_food_entries',
+  STREAK: '@calsnap_streak',
+  WATER_INTAKE: '@calsnap_water_intake',
+  GEMINI_API_KEY: '@calsnap_gemini_api_key',
+  USE_LOCATION: '@calsnap_use_location',
+  MEAL_SUGGESTION: '@calsnap_meal_suggestion', // suffixed with _<date>_<slot>
+  PROVIDER_CONFIG: '@calsnap_provider_config',
+  ASSISTANT_MEMORY: '@calsnap_assistant_memory',
+  WEIGHT_HISTORY: '@calsnap_weight_history',
+  PROGRESS_PHOTOS: '@calsnap_progress_photos',
 };
 
 // === User Profile ===
