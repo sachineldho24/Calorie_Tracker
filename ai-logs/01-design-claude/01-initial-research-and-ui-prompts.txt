@@ -1,0 +1,61 @@
+Prompt 1:
+Cal AI — AI Calorie Tracker
+Mobile · Health · AI Vision App
+📅 Deadline: June 4 · 18 days left
+Snap a food photo → AI returns calories, protein, carbs, fat. Daily food diary, macro rings, streak tracking, weekly charts. Reference: one of App Store's highest-revenue AI health apps.
+Most time of all open contests (18 days). AI vision integration is exactly your strength — you can use a vision model (GPT-4o / Claude/ Gemini) to identify food from photos. The macro ring UI + chart visualization plays to your frontend skills. Real pain point (calorie tracking is a billion-dollar space).
+
+Create a detailed PRD and deep research on the competitors:
+
+1. Features they provide
+2. Brand guidelines and principles
+3. How they generate revenue
+4. Who are their target audience
+5. Common pain points users face
+6. Any room for entry to the market
+Get me your analysis from every POV as product engineer.
+
+Claude Response:
+Now I have everything I need. Let me build the full PRD document.Here's the full PRD and competitive deep-dive. Key findings that should sharpen how you build:
+
+**The biggest story you need to know:** Cal AI was built by two high schoolers, soared to 15M downloads and over $30M in ARR in under two years, and was acquired by MyFitnessPal on March 2, 2026. This is the most important signal in the entire document — the acquisition leaves the "young, viral, AI-native" positioning **briefly unoccupied**. MFP is not a teenage founder. It cannot own that aesthetic.
+
+**The three non-obvious insights that should change how you build:**
+
+1. **The accuracy trust gap is your differentiator.** Cal AI gives up on complex meals entirely — showing "Ingredients hidden" when its AI can't identify what's in the food, with no safety net for cross-referencing against a verified database. Adding a confidence indicator ("Estimated ±15% — tap to refine") and hidden macro prompts ("Did you add oil?") makes you look smarter than the original.
+
+2. **MFP's free tier is now broken.** MyFitnessPal now caps free logging at 5 foods per day, making it impractical for most users. Every user who hits that wall is a potential customer for you.
+
+3. **There is no coaching layer anywhere.** Cal AI has no coaching features, no daily insights, no personalized feedback, and no voice interaction. On Reddit and the App Store, users frequently mention wanting "some kind of guidance" or "feedback on whether I'm on track." A single Claude API call per meal log — "You're 18g short on protein, here are 3 quick fixes" — is a 10-minute feature that no competitor has shipped.
+
+The PRD includes the full architecture, vision API prompt template (with the `notes` field that catches hidden calories), 18-day build schedule, and the design system to make your macro ring screenshots win judges on aesthetics alone.
+
+Prompt 2:
+Go through the video for more information  and also I want the best UI/UX experience app.
+
+Claude Response:
+Now I have everything I need. The video is a **real-world accuracy test** comparing Cal AI vs SnapCalorie, Synopsis, and Healthly on 3 actual measured meals. Key findings from the frames:
+
+- Cal AI wildly overestimated Egg White Bites (395 cal vs 125 actual — **3× off**)
+- Cal AI hid ingredient breakdown on complex meals
+- The actual Cal AI UI uses a **light/white theme** with colored rings — we can dramatically beat it with a premium dark design
+
+Now let me build the best-in-class app mockup.Here's the full interactive app mockup — tap through all 6 screens:
+
+**What I extracted from the video and built upon:**
+
+From the frames, the actual Cal AI app uses a **white/light theme** with basic colored rings and a simple bottom nav. Here's how this design beats it on every dimension:
+
+**From the video accuracy test — design decisions made:**
+- Cal AI massively overestimated egg white bites (395 vs 125 actual). So the **Review & Edit screen** shows a confidence badge ("87% confidence") and a **hidden macro prompt** ("Did you add cooking oil? +80 cal") — this is the single biggest UX differentiator vs the real app which silently hides breakdowns
+- The comparison table showed SnapCalorie was most accurate — so the **scan screen** includes an accuracy tip reminding users to place food on a plain plate
+
+**5 screens you can navigate:**
+1. **Home** — animated macro rings, AI coach card, food diary with meal thumbnails
+2. **Scan** — camera viewfinder with live scan animation, 4 input methods
+3. **Review & Edit** — confidence indicator, hidden macro prompt, full ingredient list with gram-level editing
+4. **Diary** — chronological meal log with daily totals
+5. **Progress** — streak, weight, weekly bar chart, weekly AI insight
+6. **Food Detail** — full ingredient breakdown with per-item calories
+
+The dark aesthetic, electric lime accent, and Syne font combination creates a **premium fitness feel** that judges will immediately distinguish from the generic health app look of the real Cal AI.

@@ -1,0 +1,713 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap');
+  :root {
+    --ph-bg: #0C0C14;
+    --ph-surface: #13131E;
+    --ph-card: #1A1A28;
+    --ph-border: #2A2A3E;
+    --ph-text: #EEEEf8;
+    --ph-muted: #6B6B90;
+    --ph-cal: #A8FF78;
+    --ph-pro: #64B5FF;
+    --ph-carb: #FFB347;
+    --ph-fat: #FF6B8A;
+    --ph-green: #A8FF78;
+    --ph-warn: #FFDD57;
+    --ph-r: 42px;
+  }
+  .ph-wrap { display:flex; justify-content:center; padding:1.5rem 0; }
+  .phone {
+    width:375px; background:var(--ph-bg); border-radius:48px;
+    border:1.5px solid var(--ph-border); overflow:hidden;
+    font-family:'DM Sans',sans-serif; color:var(--ph-text);
+    position:relative; box-shadow:0 0 0 8px #09090F, 0 0 0 9px var(--ph-border);
+  }
+  .notch {
+    width:120px; height:34px; background:#09090F;
+    border-radius:0 0 22px 22px; margin:0 auto 0;
+    position:absolute; top:0; left:50%; transform:translateX(-50%);
+    z-index:20;
+  }
+  .screen { display:none; width:100%; min-height:780px; overflow:hidden; position:relative; }
+  .screen.active { display:block; }
+  .screen-pad { padding:52px 20px 90px; }
+
+  /* NAV */
+  .bottom-nav {
+    position:absolute; bottom:0; left:0; right:0; height:84px;
+    background:var(--ph-surface);
+    border-top:1px solid var(--ph-border);
+    display:flex; align-items:center; justify-content:space-around;
+    padding:0 8px 14px; z-index:10;
+  }
+  .nav-btn { background:none; border:none; color:var(--ph-muted); font-size:11px;
+    display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer;
+    font-family:'DM Sans',sans-serif; padding:8px 12px; border-radius:12px;
+    transition:color 0.2s; }
+  .nav-btn.active { color:var(--ph-cal); }
+  .nav-btn i { font-size:22px; }
+  .nav-fab {
+    width:56px; height:56px; border-radius:50%;
+    background:var(--ph-cal); border:none; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    font-size:24px; color:#0C0C14; flex-shrink:0;
+    box-shadow:0 4px 20px rgba(168,255,120,0.35);
+  }
+  .nav-fab i { font-size:24px; font-weight:700; }
+
+  /* TYPOGRAPHY */
+  .label-xs { font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:var(--ph-muted); }
+  .num-hero { font-family:'Syne',sans-serif; font-size:52px; font-weight:800; line-height:1; }
+  .num-sub { font-family:'Syne',sans-serif; font-size:13px; font-weight:500; color:var(--ph-muted); }
+  .section-title { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; color:var(--ph-muted); letter-spacing:0.15em; text-transform:uppercase; margin-bottom:12px; }
+
+  /* HEADER */
+  .header { display:flex; justify-content:space-between; align-items:center; padding:12px 20px 0; }
+  .header-brand { font-family:'Syne',sans-serif; font-size:18px; font-weight:800; }
+  .header-brand span { color:var(--ph-cal); }
+  .avatar { width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg,var(--ph-pro),var(--ph-cal)); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; color:#0C0C14; }
+
+  /* WEEK STRIP */
+  .week-strip { display:flex; gap:6px; padding:16px 20px 0; overflow-x:auto; }
+  .week-strip::-webkit-scrollbar { display:none; }
+  .day-btn { min-width:44px; height:56px; border-radius:14px; background:var(--ph-surface); border:1px solid var(--ph-border); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; cursor:pointer; flex-shrink:0; }
+  .day-btn.today { background:var(--ph-cal); border-color:var(--ph-cal); }
+  .day-btn .day-name { font-size:9px; letter-spacing:0.1em; text-transform:uppercase; color:var(--ph-muted); }
+  .day-btn.today .day-name { color:#0C0C14; }
+  .day-btn .day-num { font-family:'Syne',sans-serif; font-size:16px; font-weight:700; }
+  .day-btn.today .day-num { color:#0C0C14; }
+  .day-dot { width:4px; height:4px; border-radius:50%; background:var(--ph-cal); }
+  .day-btn.today .day-dot { background:#0C0C14; }
+
+  /* CALORIE RING SECTION */
+  .cal-ring-section { display:flex; align-items:center; gap:20px; padding:20px; }
+  .ring-wrap { position:relative; width:110px; height:110px; flex-shrink:0; }
+  .ring-wrap svg { position:absolute; top:0; left:0; transform:rotate(-90deg); }
+  .ring-center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .ring-pct { font-family:'Syne',sans-serif; font-size:22px; font-weight:800; }
+  .ring-lbl { font-size:9px; letter-spacing:0.1em; text-transform:uppercase; color:var(--ph-muted); }
+  .cal-info { flex:1; }
+  .cal-left { font-family:'Syne',sans-serif; font-size:38px; font-weight:800; line-height:1; }
+  .cal-label { font-size:12px; color:var(--ph-muted); margin-top:2px; }
+  .cal-row { display:flex; gap:8px; margin-top:10px; }
+  .cal-stat { background:var(--ph-surface); border:1px solid var(--ph-border); border-radius:10px; padding:6px 10px; flex:1; text-align:center; }
+  .cal-stat-val { font-family:'Syne',sans-serif; font-size:14px; font-weight:700; }
+  .cal-stat-lbl { font-size:9px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ph-muted); }
+
+  /* MACRO RINGS */
+  .macro-grid { display:flex; gap:12px; padding:0 20px 16px; }
+  .macro-ring-item { flex:1; background:var(--ph-surface); border:1px solid var(--ph-border); border-radius:16px; padding:14px 10px; display:flex; flex-direction:column; align-items:center; gap:8px; }
+  .macro-ring-svg { position:relative; width:60px; height:60px; }
+  .macro-ring-svg svg { position:absolute; top:0; left:0; transform:rotate(-90deg); }
+  .macro-ring-center { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:'Syne',sans-serif; font-size:13px; font-weight:800; }
+  .macro-name { font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:var(--ph-muted); }
+  .macro-left { font-size:11px; color:var(--ph-muted); }
+
+  /* FOOD CARDS */
+  .food-card { display:flex; gap:12px; padding:12px; background:var(--ph-card); border:1px solid var(--ph-border); border-radius:16px; margin-bottom:10px; align-items:center; cursor:pointer; }
+  .food-thumb { width:56px; height:56px; border-radius:12px; background:var(--ph-border); overflow:hidden; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:26px; }
+  .food-info { flex:1; min-width:0; }
+  .food-name { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .food-time { font-size:11px; color:var(--ph-muted); margin-top:2px; }
+  .food-chips { display:flex; gap:5px; margin-top:6px; }
+  .chip { font-size:10px; padding:2px 7px; border-radius:6px; font-weight:500; }
+  .chip-cal { background:rgba(168,255,120,0.12); color:var(--ph-cal); }
+  .chip-pro { background:rgba(100,181,255,0.12); color:var(--ph-pro); }
+  .chip-carb { background:rgba(255,179,71,0.12); color:var(--ph-carb); }
+  .chip-fat { background:rgba(255,107,138,0.12); color:var(--ph-fat); }
+  .food-cal-badge { font-family:'Syne',sans-serif; font-size:14px; font-weight:700; color:var(--ph-cal); text-align:right; flex-shrink:0; }
+
+  /* SCAN SCREEN */
+  .camera-view { width:100%; height:380px; background:linear-gradient(180deg,#111120 0%,#0C0C14 100%); position:relative; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+  .scan-frame { width:240px; height:240px; border-radius:24px; position:relative; }
+  .scan-corner { position:absolute; width:30px; height:30px; }
+  .scan-corner.tl { top:0; left:0; border-top:3px solid var(--ph-cal); border-left:3px solid var(--ph-cal); border-radius:8px 0 0 0; }
+  .scan-corner.tr { top:0; right:0; border-top:3px solid var(--ph-cal); border-right:3px solid var(--ph-cal); border-radius:0 8px 0 0; }
+  .scan-corner.bl { bottom:0; left:0; border-bottom:3px solid var(--ph-cal); border-left:3px solid var(--ph-cal); border-radius:0 0 0 8px; }
+  .scan-corner.br { bottom:0; right:0; border-bottom:3px solid var(--ph-cal); border-right:3px solid var(--ph-cal); border-radius:0 0 8px 0; }
+  .scan-line { position:absolute; left:4px; right:4px; height:2px; background:rgba(168,255,120,0.7); top:50%; animation:scanAnim 2s ease-in-out infinite; }
+  @keyframes scanAnim { 0%,100%{top:10%} 50%{top:88%} }
+  .food-preview { position:absolute; inset:12px; border-radius:18px; background:var(--ph-card); display:flex; align-items:center; justify-content:center; font-size:80px; opacity:0.9; }
+  .scan-hint { position:absolute; bottom:16px; left:0; right:0; text-align:center; font-size:12px; color:rgba(238,238,248,0.6); letter-spacing:0.05em; }
+  .scan-badge { position:absolute; top:14px; left:50%; transform:translateX(-50%); background:rgba(168,255,120,0.15); border:1px solid rgba(168,255,120,0.3); color:var(--ph-cal); font-size:11px; padding:4px 12px; border-radius:20px; letter-spacing:0.1em; text-transform:uppercase; white-space:nowrap; }
+  .scan-actions { display:flex; gap:16px; padding:20px; }
+  .scan-method { flex:1; background:var(--ph-surface); border:1px solid var(--ph-border); border-radius:14px; padding:14px 10px; display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; font-size:11px; color:var(--ph-muted); letter-spacing:0.05em; text-transform:uppercase; }
+  .scan-method i { font-size:22px; color:var(--ph-text); }
+  .scan-method.primary { border-color:rgba(168,255,120,0.4); background:rgba(168,255,120,0.08); color:var(--ph-cal); }
+  .scan-method.primary i { color:var(--ph-cal); }
+
+  /* REVIEW SCREEN */
+  .review-header { padding:16px 20px 0; display:flex; align-items:center; gap:12px; }
+  .back-btn { width:36px; height:36px; background:var(--ph-surface); border:1px solid var(--ph-border); border-radius:10px; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+  .back-btn i { font-size:18px; }
+  .meal-photo-container { margin:16px 20px; border-radius:20px; overflow:hidden; height:180px; background:var(--ph-card); display:flex; align-items:center; justify-content:center; font-size:80px; position:relative; }
+  .confidence-badge { position:absolute; bottom:10px; right:10px; background:rgba(168,255,120,0.2); border:1px solid rgba(168,255,120,0.5); color:var(--ph-cal); font-size:11px; padding:4px 10px; border-radius:20px; }
+  .macro-summary-bar { display:flex; gap:0; margin:0 20px 16px; background:var(--ph-surface); border:1px solid var(--ph-border); border-radius:16px; overflow:hidden; }
+  .msb-item { flex:1; padding:12px 8px; text-align:center; border-right:1px solid var(--ph-border); }
+  .msb-item:last-child { border-right:none; }
+  .msb-val { font-family:'Syne',sans-serif; font-size:16px; font-weight:800; }
+  .msb-lbl { font-size:9px; text-transform:uppercase; letter-spacing:0.1em; color:var(--ph-muted); margin-top:2px; }
+  .save-btn { margin:0 20px 16px; width:calc(100% - 40px); height:52px; background:var(--ph-cal); border:none; border-radius:16px; font-family:'Syne',sans-serif; font-size:15px; font-weight:700; color:#0C0C14; cursor:pointer; letter-spacing:0.05em; }
+  .ingredient-row { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid rgba(42,42,62,0.6); }
+  .ingr-dot { width:8px; height:8px; border-radius:50%; background:var(--ph-cal); flex-shrink:0; }
+  .ingr-name { flex:1; font-size:13px; }
+  .ingr-amount { font-size:12px; color:var(--ph-muted); }
+  .ingr-cal { font-size:12px; color:var(--ph-cal); font-weight:500; }
+  .ingr-edit { width:28px; height:28px; background:var(--ph-surface); border:1px solid var(--ph-border); border-radius:8px; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; }
+  .ingr-edit i { font-size:13px; color:var(--ph-muted); }
+  .hidden-prompt { margin:16px 20px; padding:12px 14px; background:rgba(255,179,71,0.08); border:1px solid rgba(255,179,71,0.25); border-radius:12px; display:flex; gap:10px; align-items:flex-start; }
+  .hidden-prompt i { color:var(--ph-carb); font-size:18px; flex-shrink:0; margin-top:1px; }
+  .hidden-prompt-text { font-size:12px; color:var(--ph-carb); line-height:1.5; }
+  .add-ingredient { display:flex; align-items:center; gap:8px; padding:10px 0; color:var(--ph-muted); font-size:12px; cursor:pointer; }
+  .add-ingredient i { font-size:16px; }
+
+  /* PROGRESS SCREEN */
+  .prog-summary-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:0 20px 16px; }
+  .prog-card { background:var(--ph-surface); border:1px solid var(--ph-border); border-radius:14px; padding:14px; }
+  .prog-card-val { font-family:'Syne',sans-serif; font-size:22px; font-weight:800; }
+  .prog-card-lbl { font-size:11px; color:var(--ph-muted); margin-top:2px; }
+  .streak-row { display:flex; gap:6px; }
+  .streak-day { width:20px; height:20px; border-radius:6px; background:var(--ph-border); }
+  .streak-day.hit { background:var(--ph-cal); }
+
+  /* COACHING */
+  .coaching-card { margin:0 20px 16px; padding:16px; background:rgba(100,181,255,0.08); border:1px solid rgba(100,181,255,0.2); border-radius:16px; }
+  .coaching-label { font-size:10px; text-transform:uppercase; letter-spacing:0.12em; color:var(--ph-pro); margin-bottom:8px; }
+  .coaching-text { font-size:13px; line-height:1.6; }
+  .coaching-highlight { color:var(--ph-pro); font-weight:500; }
+
+  /* SCREEN TITLE */
+  .screen-title { font-family:'Syne',sans-serif; font-size:22px; font-weight:800; padding:0 20px 16px; }
+
+  /* ACCURACY BANNER */
+  .accuracy-banner { margin:0 20px 10px; padding:10px 14px; background:rgba(255,107,138,0.08); border:1px solid rgba(255,107,138,0.2); border-radius:12px; font-size:12px; color:var(--ph-fat); line-height:1.5; }
+</style>
+
+<div class="ph-wrap">
+  <div class="phone">
+    <div class="notch"></div>
+
+    <!-- SCREEN 1: HOME -->
+    <div class="screen active" id="s-home">
+      <div class="header" style="padding-top:44px;">
+        <div class="header-brand">Kcal<span>.</span>AI</div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="font-size:12px;color:var(--ph-muted);">Mon, May 19</div>
+          <div class="avatar">AB</div>
+        </div>
+      </div>
+
+      <div class="week-strip">
+        <div class="day-btn"><span class="day-name">THU</span><span class="day-num">15</span></div>
+        <div class="day-btn"><span class="day-name">FRI</span><span class="day-num">16</span><div class="day-dot"></div></div>
+        <div class="day-btn"><span class="day-name">SAT</span><span class="day-num">17</span><div class="day-dot"></div></div>
+        <div class="day-btn"><span class="day-name">SUN</span><span class="day-num">18</span><div class="day-dot"></div></div>
+        <div class="day-btn today"><span class="day-name">MON</span><span class="day-num">19</span><div class="day-dot"></div></div>
+        <div class="day-btn"><span class="day-name">TUE</span><span class="day-num">20</span></div>
+        <div class="day-btn"><span class="day-name">WED</span><span class="day-num">21</span></div>
+      </div>
+
+      <div class="cal-ring-section">
+        <div class="ring-wrap">
+          <svg width="110" height="110" viewBox="0 0 110 110">
+            <circle cx="55" cy="55" r="46" fill="none" stroke="#2A2A3E" stroke-width="8"/>
+            <circle cx="55" cy="55" r="46" fill="none" stroke="#A8FF78" stroke-width="8"
+              stroke-dasharray="289" stroke-dashoffset="86" stroke-linecap="round"/>
+          </svg>
+          <div class="ring-center">
+            <span class="ring-pct" style="color:var(--ph-cal);">70%</span>
+            <span class="ring-lbl">of goal</span>
+          </div>
+        </div>
+        <div class="cal-info">
+          <div class="cal-left">1,245</div>
+          <div class="cal-label">calories remaining today</div>
+          <div class="cal-row">
+            <div class="cal-stat">
+              <div class="cal-stat-val" style="color:var(--ph-pro);">1,755</div>
+              <div class="cal-stat-lbl">eaten</div>
+            </div>
+            <div class="cal-stat">
+              <div class="cal-stat-val" style="color:var(--ph-carb);">3,000</div>
+              <div class="cal-stat-lbl">goal</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="macro-grid">
+        <div class="macro-ring-item">
+          <div class="macro-ring-svg">
+            <svg width="60" height="60" viewBox="0 0 60 60">
+              <circle cx="30" cy="30" r="24" fill="none" stroke="#2A2A3E" stroke-width="5"/>
+              <circle cx="30" cy="30" r="24" fill="none" stroke="#64B5FF" stroke-width="5"
+                stroke-dasharray="150.8" stroke-dashoffset="45" stroke-linecap="round"/>
+            </svg>
+            <div class="macro-ring-center" style="color:var(--ph-pro);">71g</div>
+          </div>
+          <div class="macro-name">Protein</div>
+          <div class="macro-left">99g left</div>
+        </div>
+        <div class="macro-ring-item">
+          <div class="macro-ring-svg">
+            <svg width="60" height="60" viewBox="0 0 60 60">
+              <circle cx="30" cy="30" r="24" fill="none" stroke="#2A2A3E" stroke-width="5"/>
+              <circle cx="30" cy="30" r="24" fill="none" stroke="#FFB347" stroke-width="5"
+                stroke-dasharray="150.8" stroke-dashoffset="60" stroke-linecap="round"/>
+            </svg>
+            <div class="macro-ring-center" style="color:var(--ph-carb);">112g</div>
+          </div>
+          <div class="macro-name">Carbs</div>
+          <div class="macro-left">138g left</div>
+        </div>
+        <div class="macro-ring-item">
+          <div class="macro-ring-svg">
+            <svg width="60" height="60" viewBox="0 0 60 60">
+              <circle cx="30" cy="30" r="24" fill="none" stroke="#2A2A3E" stroke-width="5"/>
+              <circle cx="30" cy="30" r="24" fill="none" stroke="#FF6B8A" stroke-width="5"
+                stroke-dasharray="150.8" stroke-dashoffset="90" stroke-linecap="round"/>
+            </svg>
+            <div class="macro-ring-center" style="color:var(--ph-fat);">38g</div>
+          </div>
+          <div class="macro-name">Fat</div>
+          <div class="macro-left">62g left</div>
+        </div>
+      </div>
+
+      <div style="padding:0 20px 12px;">
+        <div class="coaching-card">
+          <div class="coaching-label"><i class="ti ti-brain" aria-hidden="true" style="margin-right:4px;"></i>AI coach</div>
+          <div class="coaching-text">You're <span class="coaching-highlight">29g short on protein</span> with dinner remaining. Add a chicken breast or Greek yogurt to hit your goal.</div>
+        </div>
+      </div>
+
+      <div style="padding:0 20px;">
+        <div class="section-title">Today's log</div>
+        <div class="food-card" onclick="showScreen('s-detail')">
+          <div class="food-thumb">🍗</div>
+          <div class="food-info">
+            <div class="food-name">Grilled Chicken + Roasted Veg</div>
+            <div class="food-time">Lunch · 1:14 PM</div>
+            <div class="food-chips">
+              <span class="chip chip-pro">35g P</span>
+              <span class="chip chip-carb">25g C</span>
+              <span class="chip chip-fat">8g F</span>
+            </div>
+          </div>
+          <div class="food-cal-badge">290<br><span style="font-size:10px;color:var(--ph-muted);">cal</span></div>
+        </div>
+        <div class="food-card">
+          <div class="food-thumb">🥣</div>
+          <div class="food-info">
+            <div class="food-name">Greek Yogurt + Berries</div>
+            <div class="food-time">Breakfast · 8:02 AM</div>
+            <div class="food-chips">
+              <span class="chip chip-pro">22g P</span>
+              <span class="chip chip-carb">31g C</span>
+              <span class="chip chip-fat">4g F</span>
+            </div>
+          </div>
+          <div class="food-cal-badge">245<br><span style="font-size:10px;color:var(--ph-muted);">cal</span></div>
+        </div>
+        <div class="food-card">
+          <div class="food-thumb">🥤</div>
+          <div class="food-info">
+            <div class="food-name">Protein Shake (Vanilla)</div>
+            <div class="food-time">Post-workout · 10:45 AM</div>
+            <div class="food-chips">
+              <span class="chip chip-pro">30g P</span>
+              <span class="chip chip-carb">8g C</span>
+              <span class="chip chip-fat">3g F</span>
+            </div>
+          </div>
+          <div class="food-cal-badge">180<br><span style="font-size:10px;color:var(--ph-muted);">cal</span></div>
+        </div>
+      </div>
+
+      <div style="height:90px;"></div>
+      <div class="bottom-nav">
+        <button class="nav-btn active" onclick="showScreen('s-home')"><i class="ti ti-home" aria-hidden="true"></i>Home</button>
+        <button class="nav-btn" onclick="showScreen('s-progress')"><i class="ti ti-chart-line" aria-hidden="true"></i>Progress</button>
+        <button class="nav-fab" onclick="showScreen('s-scan')" aria-label="Log meal"><i class="ti ti-plus" aria-hidden="true"></i></button>
+        <button class="nav-btn" onclick="showScreen('s-diary')"><i class="ti ti-book" aria-hidden="true"></i>Diary</button>
+        <button class="nav-btn"><i class="ti ti-user-circle" aria-hidden="true"></i>Profile</button>
+      </div>
+    </div>
+
+    <!-- SCREEN 2: SCAN -->
+    <div class="screen" id="s-scan">
+      <div style="padding:44px 20px 0;display:flex;align-items:center;justify-content:space-between;">
+        <button onclick="showScreen('s-home')" style="background:var(--ph-surface);border:1px solid var(--ph-border);border-radius:10px;padding:8px 12px;color:var(--ph-text);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;"><i class="ti ti-x" aria-hidden="true" style="font-size:16px;vertical-align:-2px;margin-right:4px;"></i>Close</button>
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px;">Log a meal</div>
+        <div style="width:70px;"></div>
+      </div>
+
+      <div style="padding:16px 20px 0;">
+        <div class="camera-view" style="border-radius:24px;">
+          <div class="scan-badge"><i class="ti ti-wand" aria-hidden="true" style="margin-right:4px;font-size:12px;"></i>AI scanning…</div>
+          <div class="scan-frame">
+            <div class="scan-corner tl"></div>
+            <div class="scan-corner tr"></div>
+            <div class="scan-corner bl"></div>
+            <div class="scan-corner br"></div>
+            <div class="food-preview">🍲</div>
+            <div class="scan-line"></div>
+          </div>
+          <div class="scan-hint">Point camera at your meal · hold steady</div>
+        </div>
+      </div>
+
+      <div style="padding:16px 20px 0;">
+        <div class="accuracy-banner">
+          <i class="ti ti-info-circle" aria-hidden="true" style="margin-right:6px;"></i>
+          <strong>Tip:</strong> Place food on a plain plate for best accuracy. Mixed dishes can vary ±15%.
+        </div>
+      </div>
+
+      <div class="scan-actions">
+        <div class="scan-method primary" onclick="showScreen('s-review')">
+          <i class="ti ti-camera" aria-hidden="true"></i>
+          Snap photo
+        </div>
+        <div class="scan-method">
+          <i class="ti ti-barcode" aria-hidden="true"></i>
+          Barcode
+        </div>
+        <div class="scan-method">
+          <i class="ti ti-microphone" aria-hidden="true"></i>
+          Voice
+        </div>
+        <div class="scan-method">
+          <i class="ti ti-search" aria-hidden="true"></i>
+          Search
+        </div>
+      </div>
+
+      <div style="padding:0 20px;">
+        <div class="section-title">Recent meals</div>
+        <div class="food-card" onclick="showScreen('s-review')">
+          <div class="food-thumb">🍗</div>
+          <div class="food-info">
+            <div class="food-name">Grilled Chicken + Veg</div>
+            <div class="food-time">Yesterday · Lunch</div>
+          </div>
+          <div style="font-size:12px;color:var(--ph-muted);">Re-log</div>
+        </div>
+        <div class="food-card">
+          <div class="food-thumb">🥣</div>
+          <div class="food-info">
+            <div class="food-name">Greek Yogurt + Berries</div>
+            <div class="food-time">Yesterday · Breakfast</div>
+          </div>
+          <div style="font-size:12px;color:var(--ph-muted);">Re-log</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREEN 3: REVIEW & EDIT -->
+    <div class="screen" id="s-review">
+      <div class="review-header" style="padding-top:44px;">
+        <div class="back-btn" onclick="showScreen('s-scan')"><i class="ti ti-arrow-left" aria-hidden="true"></i></div>
+        <div style="flex:1;font-family:'Syne',sans-serif;font-weight:700;font-size:16px;">Review &amp; Edit</div>
+        <div style="width:32px;height:32px;background:var(--ph-surface);border:1px solid var(--ph-border);border-radius:10px;display:flex;align-items:center;justify-content:center;"><i class="ti ti-bookmark" aria-hidden="true" style="font-size:16px;color:var(--ph-muted);"></i></div>
+      </div>
+
+      <div class="meal-photo-container">
+        🍲
+        <div class="confidence-badge">
+          <i class="ti ti-check" aria-hidden="true" style="margin-right:4px;font-size:11px;"></i>
+          87% confidence
+        </div>
+      </div>
+
+      <div style="padding:0 20px 8px;font-family:'Syne',sans-serif;font-size:18px;font-weight:800;">Bean and Meat Stew</div>
+
+      <div class="macro-summary-bar">
+        <div class="msb-item">
+          <div class="msb-val" style="color:var(--ph-cal);">410</div>
+          <div class="msb-lbl">Cal</div>
+        </div>
+        <div class="msb-item">
+          <div class="msb-val" style="color:var(--ph-pro);">25g</div>
+          <div class="msb-lbl">Protein</div>
+        </div>
+        <div class="msb-item">
+          <div class="msb-val" style="color:var(--ph-carb);">48g</div>
+          <div class="msb-lbl">Carbs</div>
+        </div>
+        <div class="msb-item">
+          <div class="msb-val" style="color:var(--ph-fat);">13g</div>
+          <div class="msb-lbl">Fat</div>
+        </div>
+      </div>
+
+      <div class="hidden-prompt">
+        <i class="ti ti-alert-triangle" aria-hidden="true"></i>
+        <div class="hidden-prompt-text">
+          <strong>Hidden macros check:</strong> Did you add cooking oil or broth? These can add 50–120 cal.
+          <span style="display:inline-block;margin-top:4px;font-weight:500;text-decoration:underline;cursor:pointer;">Yes, add +80 cal</span>
+        </div>
+      </div>
+
+      <button class="save-btn" onclick="showScreen('s-home')">
+        <i class="ti ti-check" aria-hidden="true" style="margin-right:6px;"></i>
+        Save meal
+      </button>
+
+      <div style="padding:0 20px;">
+        <div class="section-title">Detected ingredients</div>
+        <div class="ingredient-row">
+          <div class="ingr-dot" style="background:var(--ph-pro);"></div>
+          <div class="ingr-name">Black beans</div>
+          <div class="ingr-amount">100g</div>
+          <div class="ingr-cal">132 cal</div>
+          <div class="ingr-edit"><i class="ti ti-edit" aria-hidden="true"></i></div>
+        </div>
+        <div class="ingredient-row">
+          <div class="ingr-dot" style="background:var(--ph-carb);"></div>
+          <div class="ingr-name">Chickpeas</div>
+          <div class="ingr-amount">70g</div>
+          <div class="ingr-cal">115 cal</div>
+          <div class="ingr-edit"><i class="ti ti-edit" aria-hidden="true"></i></div>
+        </div>
+        <div class="ingredient-row">
+          <div class="ingr-dot" style="background:var(--ph-fat);"></div>
+          <div class="ingr-name">Ground meat (lean)</div>
+          <div class="ingr-amount">80g</div>
+          <div class="ingr-cal">118 cal</div>
+          <div class="ingr-edit"><i class="ti ti-edit" aria-hidden="true"></i></div>
+        </div>
+        <div class="ingredient-row">
+          <div class="ingr-dot"></div>
+          <div class="ingr-name">Tomatoes</div>
+          <div class="ingr-amount">100g</div>
+          <div class="ingr-cal">18 cal</div>
+          <div class="ingr-edit"><i class="ti ti-edit" aria-hidden="true"></i></div>
+        </div>
+        <div class="ingredient-row">
+          <div class="ingr-dot"></div>
+          <div class="ingr-name">Onions</div>
+          <div class="ingr-amount">50g</div>
+          <div class="ingr-cal">20 cal</div>
+          <div class="ingr-edit"><i class="ti ti-edit" aria-hidden="true"></i></div>
+        </div>
+        <div class="add-ingredient">
+          <i class="ti ti-plus-circle" aria-hidden="true"></i>
+          Something missing? Add ingredient
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREEN 4: DIARY -->
+    <div class="screen" id="s-diary">
+      <div style="padding:44px 20px 0;">
+        <div class="screen-title">Food diary</div>
+        <div class="section-title">Monday, May 19</div>
+        <div style="margin-bottom:12px;font-size:12px;color:var(--ph-muted);">Breakfast</div>
+        <div class="food-card">
+          <div class="food-thumb">🥣</div>
+          <div class="food-info">
+            <div class="food-name">Greek Yogurt + Berries</div>
+            <div class="food-time">8:02 AM</div>
+            <div class="food-chips">
+              <span class="chip chip-cal">245 cal</span>
+              <span class="chip chip-pro">22g P</span>
+            </div>
+          </div>
+        </div>
+        <div style="margin-bottom:12px;margin-top:16px;font-size:12px;color:var(--ph-muted);">Snack</div>
+        <div class="food-card">
+          <div class="food-thumb">🥤</div>
+          <div class="food-info">
+            <div class="food-name">Protein Shake</div>
+            <div class="food-time">10:45 AM</div>
+            <div class="food-chips">
+              <span class="chip chip-cal">180 cal</span>
+              <span class="chip chip-pro">30g P</span>
+            </div>
+          </div>
+        </div>
+        <div style="margin-bottom:12px;margin-top:16px;font-size:12px;color:var(--ph-muted);">Lunch</div>
+        <div class="food-card" onclick="showScreen('s-detail')">
+          <div class="food-thumb">🍗</div>
+          <div class="food-info">
+            <div class="food-name">Grilled Chicken + Roasted Veg</div>
+            <div class="food-time">1:14 PM</div>
+            <div class="food-chips">
+              <span class="chip chip-cal">290 cal</span>
+              <span class="chip chip-pro">35g P</span>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;background:var(--ph-surface);border:1px solid var(--ph-border);border-radius:14px;padding:14px 16px;margin-top:16px;">
+          <div style="font-size:13px;color:var(--ph-muted);">Daily total</div>
+          <div style="display:flex;gap:16px;">
+            <div style="text-align:center;"><div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--ph-cal);">715</div><div style="font-size:9px;text-transform:uppercase;color:var(--ph-muted);">cal</div></div>
+            <div style="text-align:center;"><div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--ph-pro);">87g</div><div style="font-size:9px;text-transform:uppercase;color:var(--ph-muted);">protein</div></div>
+            <div style="text-align:center;"><div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--ph-carb);">64g</div><div style="font-size:9px;text-transform:uppercase;color:var(--ph-muted);">carbs</div></div>
+          </div>
+        </div>
+      </div>
+      <div style="height:90px;"></div>
+      <div class="bottom-nav">
+        <button class="nav-btn" onclick="showScreen('s-home')"><i class="ti ti-home" aria-hidden="true"></i>Home</button>
+        <button class="nav-btn" onclick="showScreen('s-progress')"><i class="ti ti-chart-line" aria-hidden="true"></i>Progress</button>
+        <button class="nav-fab" onclick="showScreen('s-scan')" aria-label="Log meal"><i class="ti ti-plus" aria-hidden="true"></i></button>
+        <button class="nav-btn active"><i class="ti ti-book" aria-hidden="true"></i>Diary</button>
+        <button class="nav-btn"><i class="ti ti-user-circle" aria-hidden="true"></i>Profile</button>
+      </div>
+    </div>
+
+    <!-- SCREEN 5: PROGRESS -->
+    <div class="screen" id="s-progress">
+      <div style="padding:44px 20px 0;">
+        <div class="screen-title">Progress</div>
+        <div class="prog-summary-grid">
+          <div class="prog-card">
+            <div class="prog-card-val" style="color:var(--ph-cal);">7</div>
+            <div class="prog-card-lbl">Day streak 🔥</div>
+            <div class="streak-row" style="margin-top:8px;">
+              <div class="streak-day hit"></div><div class="streak-day hit"></div>
+              <div class="streak-day hit"></div><div class="streak-day hit"></div>
+              <div class="streak-day hit"></div><div class="streak-day hit"></div>
+              <div class="streak-day hit"></div>
+            </div>
+          </div>
+          <div class="prog-card">
+            <div class="prog-card-val" style="color:var(--ph-pro);">76.2 kg</div>
+            <div class="prog-card-lbl" style="color:var(--ph-cal);">↓ 1.4 kg this week</div>
+          </div>
+          <div class="prog-card">
+            <div class="prog-card-val" style="color:var(--ph-carb);">1,890</div>
+            <div class="prog-card-lbl">Avg cal/day (7d)</div>
+          </div>
+          <div class="prog-card">
+            <div class="prog-card-val" style="color:var(--ph-fat);">134g</div>
+            <div class="prog-card-lbl">Avg protein/day</div>
+          </div>
+        </div>
+
+        <div class="section-title">Weekly calories</div>
+        <div style="background:var(--ph-surface);border:1px solid var(--ph-border);border-radius:16px;padding:16px;margin:0 0 16px;">
+          <div style="position:relative;height:120px;display:flex;align-items:flex-end;gap:8px;padding:0 4px;">
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+              <div style="flex:1;background:rgba(168,255,120,0.6);border-radius:6px 6px 0 0;width:100%;min-height:20px;" data-h="78"></div>
+              <span style="font-size:9px;color:var(--ph-muted);">T</span>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+              <div style="flex:1;background:rgba(168,255,120,0.6);border-radius:6px 6px 0 0;width:100%;min-height:20px;" data-h="92"></div>
+              <span style="font-size:9px;color:var(--ph-muted);">F</span>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+              <div style="flex:1;background:rgba(168,255,120,0.4);border-radius:6px 6px 0 0;width:100%;min-height:20px;" data-h="60"></div>
+              <span style="font-size:9px;color:var(--ph-muted);">S</span>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+              <div style="flex:1;background:rgba(168,255,120,0.6);border-radius:6px 6px 0 0;width:100%;min-height:20px;" data-h="85"></div>
+              <span style="font-size:9px;color:var(--ph-muted);">S</span>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+              <div style="flex:1;background:rgba(255,179,71,0.7);border-radius:6px 6px 0 0;width:100%;min-height:20px;" data-h="110"></div>
+              <span style="font-size:9px;color:var(--ph-muted);">M</span>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+              <div style="flex:1;background:rgba(168,255,120,0.6);border-radius:6px 6px 0 0;width:100%;min-height:20px;" data-h="75"></div>
+              <span style="font-size:9px;color:var(--ph-muted);">T</span>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+              <div style="flex:1;background:var(--ph-cal);border-radius:6px 6px 0 0;width:100%;min-height:20px;" data-h="88"></div>
+              <span style="font-size:9px;color:var(--ph-cal);">W</span>
+            </div>
+            <div style="position:absolute;top:0;left:0;right:0;height:1px;background:rgba(168,255,120,0.2);"></div>
+            <div style="position:absolute;bottom:18px;right:6px;font-size:9px;color:rgba(168,255,120,0.5);">Goal</div>
+          </div>
+        </div>
+
+        <div class="coaching-card">
+          <div class="coaching-label"><i class="ti ti-sparkles" aria-hidden="true" style="margin-right:4px;"></i>Weekly insight</div>
+          <div class="coaching-text">You hit your protein goal <span class="coaching-highlight">5 of 7 days</span>. Monday was your highest day at 2,310 cal — likely the post-workout meal. Keep dinner lighter on training days.</div>
+        </div>
+      </div>
+      <div style="height:90px;"></div>
+      <div class="bottom-nav">
+        <button class="nav-btn" onclick="showScreen('s-home')"><i class="ti ti-home" aria-hidden="true"></i>Home</button>
+        <button class="nav-btn active"><i class="ti ti-chart-line" aria-hidden="true"></i>Progress</button>
+        <button class="nav-fab" onclick="showScreen('s-scan')" aria-label="Log meal"><i class="ti ti-plus" aria-hidden="true"></i></button>
+        <button class="nav-btn" onclick="showScreen('s-diary')"><i class="ti ti-book" aria-hidden="true"></i>Diary</button>
+        <button class="nav-btn"><i class="ti ti-user-circle" aria-hidden="true"></i>Profile</button>
+      </div>
+    </div>
+
+    <!-- SCREEN 6: FOOD DETAIL -->
+    <div class="screen" id="s-detail">
+      <div style="padding-top:44px;">
+        <div style="display:flex;align-items:center;gap:12px;padding:0 20px 12px;">
+          <div class="back-btn" onclick="showScreen('s-home')"><i class="ti ti-arrow-left" aria-hidden="true"></i></div>
+          <div style="flex:1;font-family:'Syne',sans-serif;font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Grilled Chicken with Roasted Veg</div>
+          <div style="width:32px;height:32px;background:var(--ph-surface);border:1px solid var(--ph-border);border-radius:10px;display:flex;align-items:center;justify-content:center;"><i class="ti ti-heart" aria-hidden="true" style="font-size:16px;color:var(--ph-fat);"></i></div>
+        </div>
+        <div style="margin:0 20px 16px;border-radius:20px;height:200px;background:var(--ph-card);display:flex;align-items:center;justify-content:center;font-size:90px;">🍗</div>
+        <div style="padding:0 20px 4px;font-size:12px;color:var(--ph-muted);">Mon, May 19 · 1:14 PM · Lunch</div>
+        <div class="macro-summary-bar" style="margin-top:8px;">
+          <div class="msb-item">
+            <div class="msb-val" style="color:var(--ph-cal);">290</div>
+            <div class="msb-lbl">Cal</div>
+          </div>
+          <div class="msb-item">
+            <div class="msb-val" style="color:var(--ph-pro);">35g</div>
+            <div class="msb-lbl">Protein</div>
+          </div>
+          <div class="msb-item">
+            <div class="msb-val" style="color:var(--ph-carb);">25g</div>
+            <div class="msb-lbl">Carbs</div>
+          </div>
+          <div class="msb-item">
+            <div class="msb-val" style="color:var(--ph-fat);">7g</div>
+            <div class="msb-lbl">Fat</div>
+          </div>
+        </div>
+        <div style="padding:16px 20px 0;">
+          <div class="section-title">Ingredient breakdown</div>
+          <div class="ingredient-row">
+            <div class="ingr-dot" style="background:var(--ph-pro);"></div>
+            <div class="ingr-name">Grilled chicken breast</div>
+            <div class="ingr-amount">100g</div>
+            <div class="ingr-cal">165 cal</div>
+          </div>
+          <div class="ingredient-row">
+            <div class="ingr-dot" style="background:var(--ph-cal);"></div>
+            <div class="ingr-name">Roasted cauliflower</div>
+            <div class="ingr-amount">100g</div>
+            <div class="ingr-cal">25 cal</div>
+          </div>
+          <div class="ingredient-row">
+            <div class="ingr-dot" style="background:var(--ph-carb);"></div>
+            <div class="ingr-name">Steamed sweet potato</div>
+            <div class="ingr-amount">100g</div>
+            <div class="ingr-cal">86 cal</div>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:16px;">
+            <button style="flex:1;height:44px;background:var(--ph-surface);border:1px solid var(--ph-border);border-radius:12px;color:var(--ph-text);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;"><i class="ti ti-edit" aria-hidden="true" style="font-size:16px;"></i>Edit</button>
+            <button style="flex:1;height:44px;background:var(--ph-surface);border:1px solid var(--ph-border);border-radius:12px;color:var(--ph-text);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;"><i class="ti ti-share" aria-hidden="true" style="font-size:16px;"></i>Share</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+(function() {
+  const bars = document.querySelectorAll('[data-h]');
+  const maxH = Math.max(...[...bars].map(b => +b.dataset.h));
+  bars.forEach(b => {
+    b.style.height = Math.round((+b.dataset.h / maxH) * 96) + 'px';
+  });
+})();
+</script>

@@ -3,6 +3,6 @@ cal-ai-prd-competitive-analysis.md
 .env
 app/.env
 node_modules/
-ai-logs/
+# ai-logs/ — removed so contest logs are tracked
 Claud_Initial_Research_And_UI.txt
 cal_ai_clone_app_ui.html
